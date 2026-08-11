@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int         @id @default(autoincrement())
+  username     String      @unique
+  passwordHash String
+  avatarPath   String?
+  createdAt    DateTime    @default(now())
+  challenges   Challenge[]
+  attempts     Attempt[]
+}
+
+model Challenge {
+  id              Int             @id @default(autoincrement())
+  author          User            @relation(fields: [authorId], references: [id])
+  authorId        Int
+  title           String
+  // never serialized in API responses, see docs/security.md
+  secretRegex     String
+  examplePositive String
+  exampleNegative String
+  createdAt       DateTime        @default(now())
+  controlStrings  ControlString[]
+  attempts        Attempt[]
+}
+
+model ControlString {
+  id          Int        @id @default(autoincrement())
+  challenge   Challenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  challengeId Int
+  value       String
+  kind        StringKind
+
+  // a value appears once per challenge, so it can never be both kinds
+  @@unique([challengeId, value])
+}
+
+enum StringKind {
+  POSITIVE
+  NEGATIVE
+}
+
+model Attempt {
+  id               Int       @id @default(autoincrement())
+  challenge        Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  challengeId      Int
+  user             User      @relation(fields: [userId], references: [id])
+  userId           Int
+  proposedRegex    String
+  positivesMatched Int
+  negativesMatched Int
+  solved           Boolean
+  createdAt        DateTime  @default(now())
+
+  @@index([challengeId, userId])
+}
