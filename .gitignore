@@ -1,0 +1,49 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+*.tsbuildinfo
+
+# environment files hold secrets; only the example is versioned
+.env
+.env.*
+!.env.example
+*.local
+
+# logs
+*.log
+npm-debug.log*
+
+# runtime data
+backend/uploads/*
+!backend/uploads/.gitkeep
+pgdata/
+
+# test artifacts
+coverage/
+test-results/
+playwright-report/
+blob-report/
+e2e/.auth/
+
+# caches
+.eslintcache
+.cache/
+.vite/
+
+# editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# local compose overrides
+docker-compose.override.yml
+
+# the delivery archive is built from a fresh clone, never versioned
+N86004722-*.zip
+
+# course material stays local: it is not ours to publish
+Progetti - Tecnologie Web - 25-26.pdf
