@@ -5,6 +5,12 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
+
+// the suite registers and logs in more than 10 times per run, which the
+// default per-route auth limit would 429; raise it unless the environment
+// pins a value on purpose. Must happen before the app import reads env.
+process.env.AUTH_RATE_LIMIT_MAX ??= "1000";
+
 const { app } = await import("../src/app.js");
 
 const server = app.listen(0);
@@ -31,3 +37,6 @@ if (failed > 0) {
   process.exit(1);
 }
 console.log(`all api tests passed (${files.length} files)`);
+// exit explicitly: the session store keeps a pg pool and a prune timer
+// alive, which would otherwise hang the runner
+process.exit(0);

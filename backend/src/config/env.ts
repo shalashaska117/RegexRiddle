@@ -10,4 +10,8 @@ export const env = {
   port: Number(process.env.PORT ?? 3000),
   databaseUrl: required("DATABASE_URL"),
   sessionSecret: required("SESSION_SECRET"),
+  authRateLimitWindowMs: Number(process.env.AUTH_RATE_LIMIT_WINDOW_MS ?? 60_000),
+  authRateLimitMax: Number(process.env.AUTH_RATE_LIMIT_MAX ?? 10),
+  attemptRateLimitWindowMs: Number(process.env.ATTEMPT_RATE_LIMIT_WINDOW_MS ?? 60_000),
+  attemptRateLimitMax: Number(process.env.ATTEMPT_RATE_LIMIT_MAX ?? 60),
 };
