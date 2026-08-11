@@ -26,6 +26,12 @@ export function createMatcher(pattern: string): Matcher {
 
   let compiled: RE2;
   try {
+    // The pattern must compile on its own before it is wrapped. A pattern
+    // that only compiles inside ^(?:...)$ has an unmatched ")" that closes
+    // the wrapper group early (e.g. "a)|(b" would become "^(?:a)|(b)$",
+    // which matches substrings). RE2 rejects unmatched parens, so a
+    // pattern that passes this compile cannot escape the group below.
+    new RE2(pattern);
     compiled = new RE2(`^(?:${pattern})$`);
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
