@@ -48,5 +48,7 @@ End-to-end tests, with backend and frontend running:
 
 ## Status
 
-Scaffold: layout, tooling and documentation are in place; the game features are
-being implemented. `docs/requirements.md` tracks the binding spec rules.
+Backend and frontend are implemented: the REST API per `docs/api.md` with its
+test suite, and the SPA with the full game flows plus an accessibility panel
+(font, text size, contrast). Next: the Playwright end-to-end suite.
+`docs/requirements.md` tracks the binding spec rules.
