@@ -33,6 +33,10 @@ Backend, on http://localhost:3000:
     npx prisma migrate dev
     npm run dev
 
+Demo data, from `backend/`; wipes the database first. Log in with `demo` / `demo-password` (every seeded user has that password):
+
+    npx prisma db seed
+
 Frontend, on http://localhost:5173 (proxies `/api` to the backend):
 
     cd frontend
