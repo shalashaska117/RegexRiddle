@@ -1,0 +1,217 @@
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/opendyslexic/OpenDyslexic-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "OpenDyslexic";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("./fonts/opendyslexic/OpenDyslexic-Bold.woff2") format("woff2");
+}
+
+:root {
+  --bg: #0e1116;
+  --panel: #141922;
+  --inset: #0a0e14;
+  --border: #212836;
+  --hairline: #1a202c;
+  --text: #d2d7e0;
+  --text-bright: #eaedf3;
+  --muted: #848c9c;
+  --accent: #c8a96e;
+  --accent-bright: #d9bc82;
+  --ok: #8fb381;
+  --err: #c9736e;
+  --tk-del: #6d7585;
+  --tk-anc: #c8a96e;
+  --tk-cls: #84aec6;
+  --tk-qua: #bd8585;
+  --font-ui: "Atkinson Hyperlegible Next", sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono", monospace;
+}
+
+:root.font-od {
+  --font-ui: "OpenDyslexic", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-bright);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-bright);
+  text-decoration: underline;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+@media (min-width: 40rem) {
+  .page {
+    padding: 2rem 2rem 4rem;
+  }
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 1.25rem;
+}
+
+.btn {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  color: var(--accent);
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--accent-bright);
+  color: var(--accent-bright);
+}
+
+.btn:disabled {
+  border-color: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.input,
+textarea {
+  background: var(--inset);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  padding: 0.5rem 0.65rem;
+  width: 100%;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+}
+
+.label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+}
+
+.error-text {
+  color: var(--err);
+  font-size: 0.85rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.ok {
+  color: var(--ok);
+}
+
+.err {
+  color: var(--err);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.caret {
+  color: var(--accent);
+  animation: caret-blink 1.1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret {
+    animation: none;
+  }
+}
