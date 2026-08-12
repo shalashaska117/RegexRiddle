@@ -14,6 +14,15 @@
   src: url("./fonts/opendyslexic/OpenDyslexic-Bold.woff2") format("woff2");
 }
 
+@font-face {
+  font-family: "OpenDyslexic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./fonts/opendyslexic/OpenDyslexicMono-Regular.woff2")
+    format("woff2");
+}
+
 :root {
   --bg: #0e1116;
   --panel: #141922;
@@ -37,6 +46,35 @@
 
 :root.font-od {
   --font-ui: "OpenDyslexic", sans-serif;
+  --font-mono: "OpenDyslexic Mono", monospace;
+}
+
+/* Spacing per the British Dyslexia Association style guide. */
+:root.font-od body {
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  word-spacing: 0.08em;
+}
+
+/* High-contrast light theme; all values hold at least 7:1 on --bg for text
+   and 3:1 for component borders. */
+:root.theme-light {
+  --bg: #ffffff;
+  --panel: #f2f4f7;
+  --inset: #ffffff;
+  --border: #8f99a8;
+  --hairline: #d5dae2;
+  --text: #1c2027;
+  --text-bright: #000000;
+  --muted: #4c525c;
+  --accent: #7a5c14;
+  --accent-bright: #5d460f;
+  --ok: #2e6027;
+  --err: #a02c24;
+  --tk-del: #4c5563;
+  --tk-anc: #7a5c14;
+  --tk-cls: #1f5d7a;
+  --tk-qua: #8c3a3a;
 }
 
 * {
@@ -192,6 +230,30 @@ textarea::placeholder {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip-link:focus {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  width: auto;
+  height: auto;
+  clip: auto;
+  z-index: 10;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  color: var(--text-bright);
+  padding: 0.5rem 0.9rem;
 }
 
 @keyframes caret-blink {

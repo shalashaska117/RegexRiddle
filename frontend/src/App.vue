@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import { useAuthStore } from "./stores/auth";
-import { usePrefsStore } from "./stores/prefs";
-import type { FontPreference } from "./stores/prefs";
+import { usePrefsStore, TEXT_SCALES } from "./stores/prefs";
+import type {
+  FontPreference,
+  TextScale,
+  ThemePreference,
+} from "./stores/prefs";
 
 const auth = useAuthStore();
 const prefs = usePrefsStore();
@@ -17,9 +21,20 @@ function onFontChange(event: Event): void {
   const value = (event.target as HTMLSelectElement).value as FontPreference;
   prefs.setFont(value);
 }
+
+function onTextScaleChange(event: Event): void {
+  const value = Number((event.target as HTMLSelectElement).value) as TextScale;
+  prefs.setTextScale(value);
+}
+
+function onThemeChange(event: Event): void {
+  const value = (event.target as HTMLSelectElement).value as ThemePreference;
+  prefs.setTheme(value);
+}
 </script>
 
 <template>
+  <a class="skip-link" href="#main-content">Skip to content</a>
   <header class="site-header">
     <nav class="nav" aria-label="Main">
       <RouterLink to="/" class="brand"
@@ -57,22 +72,49 @@ function onFontChange(event: Event): void {
     </nav>
   </header>
 
-  <main class="page">
+  <main id="main-content" class="page" tabindex="-1">
     <RouterView />
   </main>
 
   <footer class="site-footer">
-    <div class="footer-inner">
-      <label class="label footer-label" for="font-select">Font</label>
-      <select
-        id="font-select"
-        class="input font-select"
-        :value="prefs.font"
-        @change="onFontChange"
-      >
-        <option value="atkinson">Atkinson Hyperlegible</option>
-        <option value="opendyslexic">OpenDyslexic</option>
-      </select>
+    <div class="footer-inner" role="group" aria-label="Accessibility options">
+      <span class="footer-field">
+        <label class="label footer-label" for="font-select">Font</label>
+        <select
+          id="font-select"
+          class="input footer-select"
+          :value="prefs.font"
+          @change="onFontChange"
+        >
+          <option value="atkinson">Atkinson Hyperlegible</option>
+          <option value="opendyslexic">OpenDyslexic</option>
+        </select>
+      </span>
+      <span class="footer-field">
+        <label class="label footer-label" for="scale-select">Text size</label>
+        <select
+          id="scale-select"
+          class="input footer-select"
+          :value="String(prefs.textScale)"
+          @change="onTextScaleChange"
+        >
+          <option v-for="scale in TEXT_SCALES" :key="scale" :value="String(scale)">
+            {{ scale }}%
+          </option>
+        </select>
+      </span>
+      <span class="footer-field">
+        <label class="label footer-label" for="theme-select">Theme</label>
+        <select
+          id="theme-select"
+          class="input footer-select"
+          :value="prefs.theme"
+          @change="onThemeChange"
+        >
+          <option value="graphite">Graphite dark</option>
+          <option value="light">High contrast light</option>
+        </select>
+      </span>
     </div>
   </footer>
 </template>
@@ -187,17 +229,28 @@ main.page {
   margin: 0 auto;
   padding: 0.8rem 1rem;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.75rem 1.5rem;
+}
+
+.footer-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .footer-label {
   margin-bottom: 0;
 }
 
-.font-select {
+.footer-select {
   width: auto;
   font-size: 0.85rem;
   padding: 0.3rem 0.5rem;
+}
+
+main.page:focus {
+  outline: none;
 }
 </style>
