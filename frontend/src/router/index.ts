@@ -10,31 +10,34 @@ export const router = createRouter({
       path: "/how-to-play",
       name: "how-to-play",
       component: () => import("../views/HowToPlayView.vue"),
+      meta: { title: "How to play" },
     },
     {
       path: "/login",
       name: "login",
       component: () => import("../views/LoginView.vue"),
-      meta: { guestOnly: true },
+      meta: { guestOnly: true, title: "Log in" },
     },
     {
       path: "/register",
       name: "register",
       component: () => import("../views/RegisterView.vue"),
-      meta: { guestOnly: true },
+      meta: { guestOnly: true, title: "Register" },
     },
     {
       path: "/challenges",
       name: "challenges",
       component: () => import("../views/ChallengesView.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: "Challenges" },
     },
     {
       path: "/challenges/new",
       name: "challenge-create",
       component: () => import("../views/ChallengeCreateView.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: "New challenge" },
     },
+    // No title meta: the view sets the tab title to the riddle's own title
+    // once it loads.
     {
       path: "/challenges/:id",
       name: "challenge-detail",
@@ -45,13 +48,13 @@ export const router = createRouter({
       path: "/profile",
       name: "profile",
       component: () => import("../views/ProfileView.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: "Profile" },
     },
     {
       path: "/leaderboard",
       name: "leaderboard",
       component: () => import("../views/LeaderboardView.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: "Leaderboard" },
     },
     // Public on purpose: an unknown URL answers the same way logged in or
     // out, instead of bouncing to login and hinting at which paths exist.
@@ -59,8 +62,14 @@ export const router = createRouter({
       path: "/:pathMatch(.*)*",
       name: "not-found",
       component: () => import("../views/NotFoundView.vue"),
+      meta: { title: "Page not found" },
     },
   ],
+});
+
+router.afterEach((to) => {
+  const title = to.meta.title as string | undefined;
+  document.title = title ? `${title} - RegexRiddle` : "RegexRiddle";
 });
 
 router.beforeEach(async (to) => {

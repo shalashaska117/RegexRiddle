@@ -65,6 +65,7 @@ async function load(): Promise<void> {
     challenge.value = detail;
     attempts.value = [...detail.myAttempts];
     solved.value = detail.solvedByMe;
+    document.title = `${detail.title} - RegexRiddle`;
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
       notFound.value = true;
