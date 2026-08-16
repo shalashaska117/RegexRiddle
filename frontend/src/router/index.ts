@@ -13,6 +13,12 @@ export const router = createRouter({
       meta: { title: "How to play" },
     },
     {
+      path: "/tutorial",
+      name: "tutorial",
+      component: () => import("../views/TutorialView.vue"),
+      meta: { title: "Learn regex" },
+    },
+    {
       path: "/login",
       name: "login",
       component: () => import("../views/LoginView.vue"),

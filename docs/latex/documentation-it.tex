@@ -1,0 +1,68 @@
+\documentclass[11pt,a4paper]{article}
+\newcommand{\doclanguage}{italian}
+\newcommand{\docheaderright}{Documentazione del progetto}
+\input{preamble}
+
+\begin{document}
+
+\makecoverpage
+  {Universit\`a degli Studi di Napoli Federico II}
+  {Corso di Tecnologie Web}
+  {Documentazione del progetto}
+  {%
+    {\Large \textbf{Studente}}\\[0.2cm]
+    \textbf{Pietro Pellegrino} \quad {\color{gray} Matr. N86004722} \\[0.7cm]
+
+    {\Large \textbf{Traccia}}\\[0.2cm]
+    {\color{gray} 4.D, RegexRiddle} \\[0.7cm]
+
+    {\Large \textbf{Professore}}\\[0.2cm]
+    {\color{gray} Prof. Luigi Libero Lucio Starace} \\[0.7cm]
+
+    {\Large \textbf{Anno accademico}}\\[0.2cm]
+    {\color{gray} 2025/26}
+  }
+
+\makestackheading{Stack tecnologico}
+
+Piattaforma web di indovinelli sulle espressioni regolari: una sfida nasconde
+un'espressione regolare, e i giocatori ne scrivono una che secondo loro si
+comporta allo stesso modo.
+
+\subsection*{Back-end}
+
+\begin{stacktable}
+\textbf{Node.js 22} & Runtime per l'API, per il seed e per la suite di test \\
+\textbf{Express 5} & Livello HTTP: routing, middleware ed endpoint REST \\
+\textbf{TypeScript} & Linguaggio, su questo lato e sull'altro \\
+\textbf{PostgreSQL 17} & Base di dati relazionale per i dati di gioco e le sessioni \\
+\textbf{Prisma} & Client tipizzato, con migrazioni generate da un unico schema \\
+\textbf{RE2} & Motore regex a tempo lineare; ogni pattern degli utenti passa di qui \\
+\textbf{argon2} & Hash delle password, argon2id \\
+\textbf{zod} & Validazione stretta di ogni corpo e parametro di rotta \\
+\textbf{express-session} \newline \textbf{connect-pg-simple} & Cookie di sessione, con le sessioni conservate in PostgreSQL \\
+\textbf{helmet} & Intestazioni HTTP di protezione \\
+\textbf{multer} & Parsing multipart per il caricamento dell'avatar \\
+\textbf{Docker Compose} & Avvia PostgreSQL in sviluppo e per la dimostrazione \\
+\end{stacktable}
+
+\subsection*{Front-end}
+
+\begin{stacktable}
+\textbf{Vue 3} & Single-page application: Composition API, single-file component \\
+\textbf{Vite} & Dev server con il proxy \texttt{/api} e build di produzione \\
+\textbf{Vue Router} & Routing lato client e ritorno alla pagina dopo il login \\
+\textbf{Pinia} & Store per l'utente in sessione e le preferenze di accessibilit\`a \\
+\textbf{TypeScript} & Client API tipizzato, allineato al contratto REST \\
+\textbf{CSS custom properties} & Temi, senza alcun framework CSS \\
+\textbf{Atkinson Hyperlegible} \newline \textbf{OpenDyslexic} & Caratteri inclusi localmente, cos\`i nulla viene caricato da una CDN \\
+\end{stacktable}
+
+\subsection*{Test}
+
+\begin{stacktable}
+\textbf{Playwright} & 24 test end-to-end contro lo stack in funzione \\
+\textbf{tsx, node:assert} & Suite API, nove file contro un database reale \\
+\end{stacktable}
+
+\end{document}

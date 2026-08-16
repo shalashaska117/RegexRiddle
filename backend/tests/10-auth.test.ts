@@ -7,7 +7,7 @@ const client = new HttpClient();
 // unique per run so reruns stay green against the same database
 const unique = crypto.randomUUID().replaceAll("-", "").slice(0, 20);
 const username = `u_${unique}`;
-const password = "a sufficiently long password";
+const password = "A sufficiently long password!";
 
 // register
 {
@@ -80,9 +80,38 @@ let userId: number;
   const uppercaseUsername = await client.post("/api/auth/register", { username: `U_${unique}`, password });
   assert.equal(uppercaseUsername.status, 422);
 
-  const shortPassword = await client.post("/api/auth/register", { username: `u_${unique}b`, password: "short" });
+  const shortPassword = await client.post("/api/auth/register", { username: `u_${unique}b`, password: "Short!1" });
   assert.equal(shortPassword.status, 422);
 
   const unknownField = await client.post("/api/auth/register", { username: `u_${unique}c`, password, admin: true });
   assert.equal(unknownField.status, 422);
+}
+
+// password policy: long enough, but each of these misses one required
+// character class. The message names the missing class rather than
+// restating the whole rule.
+{
+  const noUppercase = await client.post("/api/auth/register", { username: `u_${unique}d`, password: "lowercase-only-1" });
+  assert.equal(noUppercase.status, 422);
+  const body = noUppercase.body as { errors: Record<string, string> };
+  assert.equal(body.errors["password"], "add an uppercase letter");
+
+  const noLowercase = await client.post("/api/auth/register", { username: `u_${unique}e`, password: "UPPERCASE-ONLY-1" });
+  assert.equal(noLowercase.status, 422);
+  assert.equal((noLowercase.body as { errors: Record<string, string> }).errors["password"], "add a lowercase letter");
+
+  const noSpecial = await client.post("/api/auth/register", { username: `u_${unique}f`, password: "NoSpecialChar1" });
+  assert.equal(noSpecial.status, 422);
+  assert.equal((noSpecial.body as { errors: Record<string, string> }).errors["password"], "add a special character");
+
+  const onlyDigits = await client.post("/api/auth/register", { username: `u_${unique}g`, password: "12345678" });
+  assert.equal(onlyDigits.status, 422);
+  assert.equal(
+    (onlyDigits.body as { errors: Record<string, string> }).errors["password"],
+    "add a lowercase letter, an uppercase letter and a special character",
+  );
+
+  // none of the rejected registrations created a user, so the names are free
+  const reuse = await client.post("/api/auth/register", { username: `u_${unique}d`, password });
+  assert.equal(reuse.status, 201);
 }

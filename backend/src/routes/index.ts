@@ -3,6 +3,7 @@ import { authRouter } from "./auth.js";
 import { challengesRouter } from "./challenges.js";
 import { usersRouter } from "./users.js";
 import { leaderboardRouter } from "./leaderboard.js";
+import { regexRouter } from "./regex.js";
 
 export const apiRouter = Router();
 
@@ -14,3 +15,4 @@ apiRouter.use("/auth", authRouter);
 apiRouter.use("/challenges", challengesRouter);
 apiRouter.use("/users", usersRouter);
 apiRouter.use("/leaderboard", leaderboardRouter);
+apiRouter.use("/regex", regexRouter);

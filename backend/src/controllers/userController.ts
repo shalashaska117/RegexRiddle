@@ -1,6 +1,11 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { idParamShape, parseBody, parseParams } from "../middleware/validate.js";
+import {
+  idParamShape,
+  parseBody,
+  parseParams,
+  passwordSchema,
+} from "../middleware/validate.js";
 import { sessionUserId } from "../middleware/requireAuth.js";
 import { ValidationError } from "../errors.js";
 import * as userService from "../services/userService.js";
@@ -9,7 +14,7 @@ const changePasswordShape = {
   // shape check only, like login: a wrong current password answers 401
   // from the service, not 422
   currentPassword: z.string().min(1).max(128),
-  newPassword: z.string().min(8, "8 to 128 characters").max(128, "8 to 128 characters"),
+  newPassword: passwordSchema,
 };
 
 // extension the stored file gets for each accepted content type

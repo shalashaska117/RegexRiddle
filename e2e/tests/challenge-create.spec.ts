@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { createChallenge, registerUser, uniqueName } from "./helpers";
 
-const PASSWORD = "secret-pass-1";
+const PASSWORD = "Secret-pass-1";
 
 async function fillBaseFields(
   page: Page,

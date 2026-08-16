@@ -3,6 +3,9 @@ import { computed, ref } from "vue";
 import { useAuthStore } from "../stores/auth";
 import { changePassword, uploadAvatar } from "../api/users";
 import { ApiError } from "../api/client";
+import { PASSWORD_MAX, passwordProblem } from "../lib/password";
+import PasswordRequirements from "../components/PasswordRequirements.vue";
+import PasswordInput from "../components/PasswordInput.vue";
 
 const auth = useAuthStore();
 
@@ -91,6 +94,13 @@ async function onPasswordSubmit(): Promise<void> {
   confirmPasswordError.value = "";
   passwordBanner.value = "";
   passwordChanged.value = false;
+  // Same rule as registration, checked here first so a weak password costs
+  // no request; the server enforces it regardless.
+  const problem = passwordProblem(newPassword.value);
+  if (problem !== null) {
+    newPasswordError.value = problem;
+    return;
+  }
   if (newPassword.value !== confirmPassword.value) {
     confirmPasswordError.value = "The passwords do not match.";
     return;
@@ -178,36 +188,47 @@ async function onPasswordSubmit(): Promise<void> {
       <form class="form" novalidate @submit.prevent="onPasswordSubmit">
         <div>
           <label class="label" for="current-password">Current password</label>
-          <input
+          <PasswordInput
             id="current-password"
             v-model="currentPassword"
-            class="input"
-            type="password"
+            label="current password"
             autocomplete="current-password"
+            :maxlength="PASSWORD_MAX"
+            :invalid="Boolean(currentPasswordError)"
           />
           <p v-if="currentPasswordError" class="error-text">
             {{ currentPasswordError }}
           </p>
         </div>
         <div>
-          <label class="label" for="new-password">New password (8-128 characters)</label>
-          <input
+          <label class="label" for="new-password">New password</label>
+          <PasswordInput
             id="new-password"
             v-model="newPassword"
-            class="input"
-            type="password"
+            label="new password"
             autocomplete="new-password"
+            :maxlength="PASSWORD_MAX"
+            :invalid="Boolean(newPasswordError)"
+            :describedby="
+              newPasswordError
+                ? 'new-password-rules new-password-error'
+                : 'new-password-rules'
+            "
           />
-          <p v-if="newPasswordError" class="error-text">{{ newPasswordError }}</p>
+          <PasswordRequirements id="new-password-rules" :password="newPassword" />
+          <p v-if="newPasswordError" id="new-password-error" class="error-text">
+            {{ newPasswordError }}
+          </p>
         </div>
         <div>
           <label class="label" for="confirm-password">Confirm new password</label>
-          <input
+          <PasswordInput
             id="confirm-password"
             v-model="confirmPassword"
-            class="input"
-            type="password"
+            label="new password confirmation"
             autocomplete="new-password"
+            :maxlength="PASSWORD_MAX"
+            :invalid="Boolean(confirmPasswordError)"
           />
           <p v-if="confirmPasswordError" class="error-text">
             {{ confirmPasswordError }}

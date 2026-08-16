@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { parseBody } from "../middleware/validate.js";
+import { parseBody, passwordSchema } from "../middleware/validate.js";
 import { sessionUserId } from "../middleware/requireAuth.js";
 import * as authService from "../services/authService.js";
 import * as userService from "../services/userService.js";
@@ -24,7 +24,7 @@ const registerShape = {
     .min(3, "3 to 32 characters")
     .max(32, "3 to 32 characters")
     .refine(isValidUsername, "lowercase letters, digits and underscore only"),
-  password: z.string().min(8, "8 to 128 characters").max(128, "8 to 128 characters"),
+  password: passwordSchema,
 };
 
 // login only checks shape, not the register rules: a malformed username is

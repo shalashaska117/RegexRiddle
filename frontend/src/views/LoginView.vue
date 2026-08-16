@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ApiError } from "../api/client";
 import { useAuthStore } from "../stores/auth";
+import PasswordInput from "../components/PasswordInput.vue";
 
 const auth = useAuthStore();
 const route = useRoute();
@@ -82,15 +83,14 @@ async function onSubmit(): Promise<void> {
         </div>
         <div class="field">
           <label class="label" for="login-password">Password</label>
-          <input
+          <PasswordInput
             id="login-password"
             v-model="password"
-            class="input"
-            type="password"
+            label="password"
             autocomplete="current-password"
             required
-            :aria-invalid="fieldErrors.password ? 'true' : undefined"
-            :aria-describedby="fieldErrors.password ? 'login-password-error' : undefined"
+            :invalid="Boolean(fieldErrors.password)"
+            :describedby="fieldErrors.password ? 'login-password-error' : undefined"
           />
           <p
             v-if="fieldErrors.password"

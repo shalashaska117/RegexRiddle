@@ -1,4 +1,4 @@
-// Sample data for the live exam demo: six users (password "demo-password"),
+// Sample data for the live exam demo: six users (password "Demo-password"),
 // seven challenges and enough attempt history to fill the leaderboard.
 // Every stored score is computed by the same RE2 engine the API uses; a
 // hand-written expectation that disagrees with the engine aborts the seed.
@@ -9,7 +9,7 @@ import { truncateAll } from "../scripts/reset-db.js";
 
 const prisma = new PrismaClient();
 
-const PASSWORD = "demo-password";
+const PASSWORD = "Demo-password";
 const HOUR = 60 * 60 * 1000;
 const start = Date.now();
 

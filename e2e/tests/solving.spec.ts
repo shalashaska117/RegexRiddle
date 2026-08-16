@@ -1,7 +1,7 @@
 import { test, expect, type Browser, type Page } from "@playwright/test";
 import { createChallenge, registerUser, uniqueName } from "./helpers";
 
-const PASSWORD = "secret-pass-1";
+const PASSWORD = "Secret-pass-1";
 
 // The live backend throttles registrations and attempts per ip. The helpers
 // pace auth posts under the budget, but the waits they insert need room

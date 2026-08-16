@@ -10,8 +10,8 @@ const anonymous = new HttpClient();
 // unique per run so reruns stay green against the same database
 const unique = crypto.randomUUID().replaceAll("-", "").slice(0, 20);
 const username = `p_${unique}`;
-const password = "a sufficiently long password";
-const newPassword = "a different long password";
+const password = "A sufficiently long password!";
+const newPassword = "A different long password!";
 
 // a real 1x1 transparent PNG; the round trip below compares these bytes
 const pngBytes = Buffer.from(
@@ -52,13 +52,20 @@ let userId: number;
   assert.deepEqual(authMe.body, res.body);
 }
 
-// password change rejections: wrong current password, short new password,
-// unknown body field
+// password change rejections: wrong current password, short new password, a
+// new password that misses a required character class, unknown body field.
+// The policy is the same one registration enforces.
 {
   const wrong = await client.patch("/api/users/me", { currentPassword: "not the password", newPassword });
   assert.equal(wrong.status, 401);
-  const short = await client.patch("/api/users/me", { currentPassword: password, newPassword: "short" });
+  const short = await client.patch("/api/users/me", { currentPassword: password, newPassword: "Short!1" });
   assert.equal(short.status, 422);
+  const weak = await client.patch("/api/users/me", { currentPassword: password, newPassword: "nouppercase-1" });
+  assert.equal(weak.status, 422);
+  assert.equal(
+    (weak.body as { errors: Record<string, string> }).errors["newPassword"],
+    "add an uppercase letter",
+  );
   const stray = await client.patch("/api/users/me", { currentPassword: password, newPassword, admin: true });
   assert.equal(stray.status, 422);
 }

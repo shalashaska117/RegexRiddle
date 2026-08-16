@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\newcommand{\doclanguage}{english}
+\newcommand{\docheaderright}{Project documentation}
+\input{preamble}
+
+\begin{document}
+
+\makecoverpage
+  {University of Naples Federico II}
+  {Web Technologies Course}
+  {Project documentation}
+  {%
+    {\Large \textbf{Student}}\\[0.2cm]
+    \textbf{Pietro Pellegrino} \quad {\color{gray} Matr. N86004722} \\[0.7cm]
+
+    {\Large \textbf{Track}}\\[0.2cm]
+    {\color{gray} 4.D, RegexRiddle} \\[0.7cm]
+
+    {\Large \textbf{Professor}}\\[0.2cm]
+    {\color{gray} Prof. Luigi Libero Lucio Starace} \\[0.7cm]
+
+    {\Large \textbf{Academic year}}\\[0.2cm]
+    {\color{gray} 2025/26}
+  }
+
+\makestackheading{Technology stack}
+
+Web platform for regular expression riddles: a challenge hides a regular
+expression, and players write one they believe behaves the same way.
+
+\subsection*{Back end}
+
+\begin{stacktable}
+\textbf{Node.js 22} & Runtime for the API, the seed and the test suite \\
+\textbf{Express 5} & HTTP layer: routing, middleware and the REST endpoints \\
+\textbf{TypeScript} & Language, on this side and the other \\
+\textbf{PostgreSQL 17} & Relational store for the game data and the sessions \\
+\textbf{Prisma} & Typed database client, with migrations generated from one schema \\
+\textbf{RE2} & Linear-time regex engine; every user pattern runs through it \\
+\textbf{argon2} & Password hashing, argon2id \\
+\textbf{zod} & Strict validation of every request body and route parameter \\
+\textbf{express-session} \newline \textbf{connect-pg-simple} & Session cookies, with the sessions themselves in PostgreSQL \\
+\textbf{helmet} & Protective HTTP headers \\
+\textbf{multer} & Multipart parsing for the avatar upload \\
+\textbf{Docker Compose} & Runs PostgreSQL for development and for the demo \\
+\end{stacktable}
+
+\subsection*{Front end}
+
+\begin{stacktable}
+\textbf{Vue 3} & Single-page application: Composition API, single-file components \\
+\textbf{Vite} & Dev server with the \texttt{/api} proxy, and the production build \\
+\textbf{Vue Router} & Client-side routing and the redirect back after a login \\
+\textbf{Pinia} & Store for the session user and the accessibility preferences \\
+\textbf{TypeScript} & Typed API client mirroring the REST contract \\
+\textbf{CSS custom properties} & Theming, with no CSS framework \\
+\textbf{Atkinson Hyperlegible} \newline \textbf{OpenDyslexic} & Self-hosted typefaces, bundled so nothing loads from a CDN \\
+\end{stacktable}
+
+\subsection*{Tests}
+
+\begin{stacktable}
+\textbf{Playwright} & 24 end-to-end tests against the running stack \\
+\textbf{tsx, node:assert} & API suite, nine files against a live database \\
+\end{stacktable}
+
+\end{document}

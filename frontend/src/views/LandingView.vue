@@ -28,6 +28,7 @@ import RegexText from "../components/RegexText.vue";
       <div class="ctas">
         <RouterLink to="/challenges" class="btn">Browse challenges</RouterLink>
         <RouterLink to="/how-to-play" class="quiet-link">How to play</RouterLink>
+        <RouterLink to="/tutorial" class="quiet-link">Learn regex</RouterLink>
       </div>
     </section>
   </div>

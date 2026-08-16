@@ -11,7 +11,7 @@ const anonymous = new HttpClient();
 // unique per run so reruns stay green against the same database
 const unique = crypto.randomUUID().replaceAll("-", "").slice(0, 20);
 const username = `c_${unique}`;
-const password = "a sufficiently long password";
+const password = "A sufficiently long password!";
 
 // The secret side of the test challenge. The control values are chosen so
 // that none of them is a substring of the public fields, which lets the

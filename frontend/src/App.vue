@@ -48,6 +48,7 @@ function onThemeChange(event: Event): void {
         >Leaderboard</RouterLink
       >
       <RouterLink to="/how-to-play" class="nav-link">How to play</RouterLink>
+      <RouterLink to="/tutorial" class="nav-link">Learn regex</RouterLink>
       <div class="nav-right">
         <template v-if="auth.user">
           <RouterLink to="/profile" class="profile-link">

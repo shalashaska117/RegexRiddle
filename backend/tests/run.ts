@@ -1,7 +1,7 @@
 // Boots the app on an ephemeral port, then runs every tests/*.test.ts in
 // order. A test file throws to fail. Run via: npm run test:api
 import { readdirSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import path from "node:path";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -23,7 +23,9 @@ let failed = 0;
 const files = readdirSync(here).filter((f) => f.endsWith(".test.ts")).sort();
 for (const file of files) {
   try {
-    await import(path.join(here, file));
+    // as a URL, not a path: a Windows path starts with a drive letter, which
+    // the ESM loader reads as an unknown protocol
+    await import(pathToFileURL(path.join(here, file)).href);
     console.log(`ok   ${file}`);
   } catch (error) {
     failed += 1;

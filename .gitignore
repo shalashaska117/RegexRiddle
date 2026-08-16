@@ -3,6 +3,7 @@ node_modules/
 
 # build output
 dist/
+build/
 *.tsbuildinfo
 
 # environment files hold secrets; only the example is versioned
@@ -45,5 +46,11 @@ docker-compose.override.yml
 # the delivery archive is built from a fresh clone, never versioned
 N86004722-*.zip
 
-# course material stays local: it is not ours to publish
+# course material stays local
 Progetti - Tecnologie Web - 25-26.pdf
+docs/*.md
+docs/*.txt
+
+# the documentation build scripts stay local
+docs/latex/*.sh
+docs/latex/*.py

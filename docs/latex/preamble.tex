@@ -1,0 +1,165 @@
+% Shared preamble for the RegexRiddle documentation. The English and the
+% Italian document carry the same structure and differ only in their text, so
+% everything visual lives here. The including file sets \doclanguage,
+% \docsubtitle and \docheaderright before pulling this in.
+%
+% Layout and palette follow the DietiEstates25 documentation, so the two
+% projects read as one series.
+
+% --- Language and encoding ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[\doclanguage]{babel}
+
+% --- Typography ---
+\usepackage{mathpazo}                % Palatino for the body
+\usepackage[scaled=0.95]{helvet}     % Helvetica for headings
+\usepackage{courier}
+\usepackage{microtype}
+
+% --- Layout and graphics ---
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\usepackage{eso-pic}                 % places the watermark behind the cover
+\usepackage{transparent}
+
+% --- Colours and tables ---
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+
+% --- Design elements ---
+\usepackage[many]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\definecolor{primaryColor}{RGB}{0, 85, 150}      % royal blue
+\definecolor{secondaryColor}{RGB}{240, 248, 255} % alice blue
+\definecolor{accentColor}{RGB}{255, 140, 0}
+\definecolor{darkGray}{RGB}{60, 60, 60}
+\definecolor{codeBackground}{RGB}{245, 245, 245}
+
+% No document metadata and no build timestamps: the identifying information
+% belongs on the cover, where it is visible, and a PDF that carries the build
+% date and the name of the TeX binary changes on every rebuild even when the
+% text has not.
+\pdfinfoomitdate=1
+\pdfsuppressptexinfo=-1
+\pdftrailerid{}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=primaryColor,
+  urlcolor=primaryColor,
+  citecolor=primaryColor,
+  pdfauthor={},
+  pdfcreator={},
+  pdfproducer={},
+  pdfpagemode=UseNone,
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{gray}RegexRiddle}
+\fancyhead[R]{\small\sffamily\color{gray}\docheaderright}
+\fancyfoot[C]{\thepage\ / \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\titleformat{\section}
+  {\sffamily\Large\bfseries\color{primaryColor}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\sffamily\large\bfseries\color{primaryColor}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\sffamily\normalsize\bfseries\color{black}}{\thesubsubsection}{1em}{}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  columns=fullflexible,
+  breaklines=true,
+  keepspaces=true,
+  showstringspaces=false,
+  backgroundcolor=\color{codeBackground},
+  frame=l,
+  framesep=10pt,
+  rulecolor=\color{primaryColor},
+  xleftmargin=10pt,
+  aboveskip=1.1em,
+  belowskip=1.1em,
+}
+
+\setlist[itemize]{leftmargin=1.4em,itemsep=0.25em,topsep=0.4em}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=0.25em,topsep=0.4em}
+\setlist[description]{leftmargin=1.4em,itemsep=0.35em,topsep=0.4em}
+
+\renewcommand{\arraystretch}{1.3}
+\rowcolors{2}{secondaryColor}{white}
+
+% The cover and the contents page, identical in both languages apart from the
+% strings the caller passes in.
+\newcommand{\makecoverpage}[4]{%
+  % #1 university line, #2 course line, #3 document subtitle, #4 label row
+  \begin{titlepage}
+    \sffamily
+    \AddToShipoutPictureBG*{%
+      \AtPageCenter{%
+        \makebox[0pt]{\transparent{0.05}%
+          \includegraphics[width=0.8\paperwidth]{unina_logo.png}}%
+      }%
+    }
+    \noindent
+    \begin{minipage}[c]{0.5\textwidth}
+      \includegraphics[width=0.4\linewidth]{unina_logo.png}
+    \end{minipage}%
+    \begin{minipage}[c]{0.5\textwidth}
+      \raggedleft
+      \textcolor{gray}{#1}\\[0.1cm]
+      \textcolor{gray}{#2}
+    \end{minipage}
+
+    \vspace{4.5cm}
+
+    \noindent\textcolor{primaryColor}{\rule{\linewidth}{2mm}} \\[0.6cm]
+    \begin{flushright}
+      {\fontsize{45}{55}\bfseries\textcolor{primaryColor}{RegexRiddle}} \\[0.3cm]
+      {\huge\textcolor{darkGray}{#3}}
+    \end{flushright}
+    \noindent\textcolor{primaryColor}{\rule{\linewidth}{2mm}}
+
+    \vspace{3.5cm}
+
+    \begin{flushright}
+      #4
+    \end{flushright}
+
+    \vfill
+  \end{titlepage}
+  % article's titlepage resets the counter to 1, which would give the cover
+  % and the contents page the same hyperref anchor
+  \setcounter{page}{2}
+}
+
+% Heading for the stack page, in the same blue-rule style as the cover.
+\newcommand{\makestackheading}[1]{%
+  \clearpage
+  \vspace*{0.5cm}
+  \noindent\textcolor{primaryColor}{\rule{\linewidth}{1.5mm}} \\[0.4cm]
+  {\sffamily\Huge\bfseries\textcolor{primaryColor}{#1}} \\[0.2cm]
+  \noindent\textcolor{primaryColor}{\rule{\linewidth}{1.5mm}}
+  \vspace{0.5cm}
+}
+
+% Two-column table of a technology and what it does. Everything on the stack
+% page has to fit one page, so these run a size down and tighter than the
+% document default.
+\newenvironment{stacktable}
+  {\par\small\renewcommand{\arraystretch}{1.15}%
+   \noindent\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.3cm}
+                              >{\raggedright\arraybackslash}p{10.7cm}@{}}}
+  {\end{tabular}\par\vspace{0.35cm}}

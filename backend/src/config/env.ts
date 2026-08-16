@@ -14,4 +14,6 @@ export const env = {
   authRateLimitMax: Number(process.env.AUTH_RATE_LIMIT_MAX ?? 10),
   attemptRateLimitWindowMs: Number(process.env.ATTEMPT_RATE_LIMIT_WINDOW_MS ?? 60_000),
   attemptRateLimitMax: Number(process.env.ATTEMPT_RATE_LIMIT_MAX ?? 60),
+  regexTestRateLimitWindowMs: Number(process.env.REGEX_TEST_RATE_LIMIT_WINDOW_MS ?? 60_000),
+  regexTestRateLimitMax: Number(process.env.REGEX_TEST_RATE_LIMIT_MAX ?? 120),
 };

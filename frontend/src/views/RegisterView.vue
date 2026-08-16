@@ -3,6 +3,18 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { ApiError } from "../api/client";
 import { useAuthStore } from "../stores/auth";
+import { PASSWORD_MAX, passwordProblem } from "../lib/password";
+import PasswordRequirements from "../components/PasswordRequirements.vue";
+import PasswordInput from "../components/PasswordInput.vue";
+import RegexText from "../components/RegexText.vue";
+
+// Shown under the fields for the look of the thing, and hidden from screen
+// readers, since the same rules are already written out in words above them.
+// The password one is a description, not the implementation: the server
+// counts character classes in a loop, and RE2 would refuse these lookaheads
+// anyway.
+const USERNAME_PATTERN = "^[a-z0-9_]{3,32}$";
+const PASSWORD_PATTERN = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,128}$";
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -19,6 +31,13 @@ async function onSubmit(): Promise<void> {
   banner.value = "";
   fieldErrors.value = {};
   confirmError.value = "";
+  // Checked here first so a weak password costs no request; the server
+  // enforces the same rule regardless.
+  const problem = passwordProblem(password.value);
+  if (problem !== null) {
+    fieldErrors.value = { password: problem };
+    return;
+  }
   if (password.value !== confirmPassword.value) {
     confirmError.value = "Passwords do not match.";
     return;
@@ -73,6 +92,9 @@ async function onSubmit(): Promise<void> {
           <p id="register-username-hint" class="hint">
             3-32 characters: lowercase letters, digits and underscore.
           </p>
+          <p class="pattern-hint" aria-hidden="true">
+            <RegexText :pattern="USERNAME_PATTERN" />
+          </p>
           <p
             v-if="fieldErrors.username"
             id="register-username-error"
@@ -83,22 +105,27 @@ async function onSubmit(): Promise<void> {
         </div>
         <div class="field">
           <label class="label" for="register-password">Password</label>
-          <input
+          <PasswordInput
             id="register-password"
             v-model="password"
-            class="input"
-            type="password"
+            label="password"
             autocomplete="new-password"
             required
-            maxlength="128"
-            :aria-invalid="fieldErrors.password ? 'true' : undefined"
-            :aria-describedby="
+            :maxlength="PASSWORD_MAX"
+            :invalid="Boolean(fieldErrors.password)"
+            :describedby="
               fieldErrors.password
-                ? 'register-password-hint register-password-error'
-                : 'register-password-hint'
+                ? 'register-password-rules register-password-error'
+                : 'register-password-rules'
             "
           />
-          <p id="register-password-hint" class="hint">8-128 characters.</p>
+          <PasswordRequirements
+            id="register-password-rules"
+            :password="password"
+          />
+          <p class="pattern-hint" aria-hidden="true">
+            <RegexText :pattern="PASSWORD_PATTERN" />
+          </p>
           <p
             v-if="fieldErrors.password"
             id="register-password-error"
@@ -109,16 +136,15 @@ async function onSubmit(): Promise<void> {
         </div>
         <div class="field">
           <label class="label" for="register-confirm">Confirm password</label>
-          <input
+          <PasswordInput
             id="register-confirm"
             v-model="confirmPassword"
-            class="input"
-            type="password"
+            label="password confirmation"
             autocomplete="new-password"
             required
-            maxlength="128"
-            :aria-invalid="confirmError ? 'true' : undefined"
-            :aria-describedby="confirmError ? 'register-confirm-error' : undefined"
+            :maxlength="PASSWORD_MAX"
+            :invalid="Boolean(confirmError)"
+            :describedby="confirmError ? 'register-confirm-error' : undefined"
           />
           <p
             v-if="confirmError"
@@ -172,6 +198,12 @@ async function onSubmit(): Promise<void> {
   color: var(--muted);
   font-size: 0.8rem;
   margin: 0.35rem 0 0;
+}
+
+.pattern-hint {
+  font-size: 0.78rem;
+  margin: 0.35rem 0 0;
+  overflow-wrap: anywhere;
 }
 
 .field-error {

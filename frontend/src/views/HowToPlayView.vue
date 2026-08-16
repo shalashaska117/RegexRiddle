@@ -36,7 +36,9 @@ import RegexText from "../components/RegexText.vue";
         </li>
         <li>
           Patterns run under the RE2 engine, so backreferences and lookarounds
-          are unsupported.
+          are unsupported. The
+          <RouterLink to="/tutorial">tutorial</RouterLink> covers the syntax
+          that is supported, with a tester to try it on.
         </li>
         <li>
           Attempts are unlimited until you solve, but the leaderboard rewards

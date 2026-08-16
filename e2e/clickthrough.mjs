@@ -89,7 +89,7 @@ await run("guard redirects /challenges to login", async () => {
 });
 
 await run("register author and land on challenges", async () => {
-  await register(AUTHOR, "secret-pass-1");
+  await register(AUTHOR, "Secret-pass-1");
   await expect(page).toHaveTitle("Challenges - RegexRiddle");
   await shot("03-challenges-empty");
 });
@@ -128,7 +128,7 @@ await run("author sees the no-attempt notice", async () => {
 
 await run("second user sees the challenge list", async () => {
   await logout();
-  await register(SOLVER, "secret-pass-2");
+  await register(SOLVER, "Secret-pass-2");
   await expect(page.getByRole("link", { name: TITLE })).toBeVisible();
   await shot("06-challenges-list");
   await page.getByRole("link", { name: TITLE }).click();
@@ -181,18 +181,18 @@ await run("avatar upload updates the header", async () => {
 });
 
 await run("wrong current password maps inline", async () => {
-  await page.locator("#current-password").fill("wrong-pass-1");
-  await page.locator("#new-password").fill("secret-pass-3");
-  await page.locator("#confirm-password").fill("secret-pass-3");
+  await page.locator("#current-password").fill("Wrong-pass-1");
+  await page.locator("#new-password").fill("Secret-pass-3");
+  await page.locator("#confirm-password").fill("Secret-pass-3");
   const pwForm = page.locator("form", { has: page.locator("#current-password") });
   await pwForm.locator('button[type="submit"]').click();
   await expect(page.getByText(/current password is wrong/i)).toBeVisible();
 });
 
 await run("password change succeeds", async () => {
-  await page.locator("#current-password").fill("secret-pass-2");
-  await page.locator("#new-password").fill("secret-pass-3");
-  await page.locator("#confirm-password").fill("secret-pass-3");
+  await page.locator("#current-password").fill("Secret-pass-2");
+  await page.locator("#new-password").fill("Secret-pass-3");
+  await page.locator("#confirm-password").fill("Secret-pass-3");
   const pwForm = page.locator("form", { has: page.locator("#current-password") });
   await pwForm.locator('button[type="submit"]').click();
   await expect(page.getByText("Password changed.")).toBeVisible();
@@ -249,7 +249,7 @@ await run("phone: landing has no horizontal overflow", async () => {
 await run("phone: login, list and detail fit the viewport", async () => {
   await p.goto(`${BASE}/login`);
   await p.getByLabel("Username").fill(SOLVER);
-  await p.locator('input[type="password"]').fill("secret-pass-3");
+  await p.locator('input[type="password"]').fill("Secret-pass-3");
   await p.getByRole("button", { name: "Log in" }).click();
   await p.waitForURL(`${BASE}/challenges`);
   await p.screenshot({ path: `${SHOTS}/16-phone-challenges.png` });

@@ -11,7 +11,7 @@ const anonymous = new HttpClient();
 
 // unique per run so reruns stay green against the same database
 const unique = crypto.randomUUID().replaceAll("-", "").slice(0, 20);
-const password = "a sufficiently long password";
+const password = "A sufficiently long password!";
 
 async function registerAndLogin(client: HttpClient, username: string): Promise<void> {
   const register = await client.post("/api/auth/register", { username, password });

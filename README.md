@@ -33,7 +33,7 @@ Backend, on http://localhost:3000:
     npx prisma migrate dev
     npm run dev
 
-Demo data, from `backend/`; wipes the database first. Log in with `demo` / `demo-password` (every seeded user has that password):
+Demo data, from `backend/`; wipes the database first. Log in with `demo` / `Demo-password` (every seeded user has that password):
 
     npx prisma db seed
 
@@ -52,7 +52,7 @@ End-to-end tests, with backend and frontend running:
 
 ## Status
 
-Backend and frontend are implemented: the REST API per `docs/api.md` with its
-test suite, and the SPA with the full game flows plus an accessibility panel
-(font, text size, contrast). Next: the Playwright end-to-end suite.
-`docs/requirements.md` tracks the binding spec rules.
+Complete: the REST API with its test suite, the SPA with the full game flows,
+an accessibility panel (font, text size, contrast), a regex tutorial with a
+tester that runs on the server, and the Playwright suite. The documentation
+lives in `docs/`, English and Italian, with the LaTeX sources beside the PDFs.

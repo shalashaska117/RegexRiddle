@@ -12,7 +12,7 @@ const anonymous = new HttpClient();
 
 // unique per run so reruns stay green against the same database
 const unique = crypto.randomUUID().replaceAll("-", "").slice(0, 20);
-const password = "a sufficiently long password";
+const password = "A sufficiently long password!";
 const usernameA = `la_${unique}`;
 const usernameB = `lb_${unique}`;
 const usernameAuthor = `lc_${unique}`;

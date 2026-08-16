@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { createChallenge, loginUser, registerUser, uniqueName } from "./helpers";
 
-const PASSWORD = "quantifier-pw-1";
+const PASSWORD = "Quantifier-pw-1";
 
 // Smallest valid PNG (1x1 transparent), enough for the upload's image checks.
 const PNG_1X1 = Buffer.from(
@@ -36,7 +36,7 @@ test("changing the password with a wrong current password shows the inline error
   page,
 }) => {
   await registerUser(page, uniqueName("dotstar"), PASSWORD);
-  await submitPasswordChange(page, "not-the-password-1", "wanted-pass-22");
+  await submitPasswordChange(page, "Not-the-password-1", "Wanted-pass-22");
   await expect(page.getByText("The current password is wrong.")).toBeVisible();
   await expect(page).toHaveURL("/profile");
 });
@@ -45,7 +45,7 @@ test("a successful password change allows re-login with the new password", async
   page,
 }) => {
   const username = uniqueName("backref_9");
-  const newPassword = "rotated-pass-22";
+  const newPassword = "Rotated-pass-22";
   await registerUser(page, username, PASSWORD);
   await submitPasswordChange(page, PASSWORD, newPassword);
   await expect(page.getByText("Password changed.")).toBeVisible();
