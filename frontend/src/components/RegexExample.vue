@@ -11,15 +11,26 @@ const props = defineProps<{
 const emit = defineEmits<{ try: [pattern: string, subject: string] }>();
 
 // An empty sample would render as nothing at all, so it is named instead.
+/**
+ * Give empty example strings a visible label.
+ * @param sample - Example string to display.
+ * @returns The sample text, or an explicit empty-string label.
+ */
 function label(sample: string): string {
   return sample === "" ? "(the empty string)" : sample;
 }
 
+/**
+ * Load this example into the tutorial tester.
+ * Parameters: none.
+ * @returns Nothing; emits the pattern and first available sample through try.
+ */
 function onTry(): void {
   emit("try", props.pattern, props.matches[0] ?? props.nonMatches[0] ?? "");
 }
 </script>
 
+<!-- Show a regex, matching/nonmatching samples and a button to try the example. -->
 <template>
   <div class="example">
     <div class="example-head">

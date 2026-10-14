@@ -1,3 +1,4 @@
+// Configures HTTP middleware, database-backed sessions and API routes.
 import express from "express";
 import helmet from "helmet";
 import session from "express-session";

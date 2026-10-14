@@ -24,16 +24,34 @@ const createShape = {
   controlsNegative: controlArray,
 };
 
+/**
+ * Validates and creates a challenge.
+ * @param req - Request with the author session, title, regex, examples and controls.
+ * @param res - Response used to send the new challenge ID.
+ * @returns A promise that resolves with no value after sending the ID.
+ */
 export async function create(req: Request, res: Response): Promise<void> {
   const input = parseBody(req, createShape);
   const created = await challengeService.createChallenge(sessionUserId(req), input);
   res.status(201).json(created);
 }
 
+/**
+ * Sends challenges with the current user's progress.
+ * @param req - Request with the current session.
+ * @param res - Response used to send the challenge list.
+ * @returns A promise that resolves with no value after sending the list.
+ */
 export async function list(req: Request, res: Response): Promise<void> {
   res.json(await challengeService.listChallenges(sessionUserId(req)));
 }
 
+/**
+ * Sends a challenge's public details and the current user's attempts.
+ * @param req - Request with the session and challenge ID.
+ * @param res - Response used to send the challenge details.
+ * @returns A promise that resolves with no value after sending the details.
+ */
 export async function detail(req: Request, res: Response): Promise<void> {
   const { id } = parseParams(req, idParamShape);
   res.json(await challengeService.getChallenge(sessionUserId(req), id));

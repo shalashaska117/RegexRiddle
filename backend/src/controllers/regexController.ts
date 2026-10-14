@@ -18,9 +18,12 @@ const testShape = {
   subject: z.string().max(MAX_INPUT_LENGTH, `at most ${MAX_INPUT_LENGTH} characters`),
 };
 
-// Runs one pattern against one string through the engine that scores
-// attempts, so the tutorial can never teach behaviour the game contradicts.
-// Nothing is stored and no session is involved.
+/**
+ * Tests a pattern with the game engine without storing it.
+ * @param req - Request with the pattern and subject string.
+ * @param res - Response used to send the matches flag.
+ * @returns No value; sends whether the entire subject matches.
+ */
 export function testPattern(req: Request, res: Response): void {
   const { pattern, subject } = parseBody(req, testShape);
   const matcher = createMatcher(pattern);

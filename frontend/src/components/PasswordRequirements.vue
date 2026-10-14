@@ -16,9 +16,19 @@ interface RuleState {
   mark: string;
 }
 
-const rules = computed<RuleState[]>(() => {
+const rules = computed<RuleState[]>(/**
+ * Recalculate the password checklist when the password changes.
+ * Parameters: none.
+ * @returns One display state per rule, with its label, result and feedback mark.
+ */
+() => {
   const untouched = props.password === "";
-  return PASSWORD_RULES.map((rule) => {
+  return PASSWORD_RULES.map(/**
+   * Turn one password rule into its current display state.
+   * @param rule - Password rule whose predicate checks the current password.
+   * @returns Rule ID and label, met/pending flags and the mark shown beside them.
+   */
+  (rule) => {
     const met = rule.met(props.password);
     const pending = untouched && !met;
     // middle dot, check mark, multiplication x
@@ -28,6 +38,7 @@ const rules = computed<RuleState[]>(() => {
 });
 </script>
 
+<!-- Show each password rule with visible and screen-reader feedback. -->
 <template>
   <ul :id="id" class="rules">
     <li

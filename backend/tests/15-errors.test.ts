@@ -5,6 +5,12 @@ import assert from "node:assert/strict";
 const base = process.env.TEST_BASE_URL;
 if (!base) throw new Error("TEST_BASE_URL is not set; run via npm run test:api");
 
+/**
+ * Posts raw JSON text without serializing it first.
+ * @param path - API path relative to the test server.
+ * @param body - Raw request text, including deliberately invalid JSON.
+ * @returns A promise with the HTTP status and parsed JSON response.
+ */
 async function postRaw(path: string, body: string): Promise<{ status: number; body: unknown }> {
   const res = await fetch(base + path, {
     method: "POST",

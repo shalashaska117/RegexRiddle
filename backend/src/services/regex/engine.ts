@@ -11,11 +11,11 @@ export type Matcher =
   | { ok: true; test: (input: string) => boolean }
   | { ok: false; error: string };
 
-// Compiles a pattern once, anchored as ^(?:pattern)$ so test() reports
-// whether the WHOLE string matches, never a substring. On invalid or
-// unsupported syntax (RE2 has no backreferences or lookaround) returns
-// ok false with a message safe to show to the pattern's author. The
-// message may quote the pattern itself and nothing else.
+/**
+ * Compiles a pattern for full-string matching with RE2.
+ * @param pattern - User regex to compile; backreferences and lookaround are not supported.
+ * @returns An ok result with a test function, or an error that may quote only the pattern.
+ */
 export function createMatcher(pattern: string): Matcher {
   if (pattern.length > MAX_PATTERN_LENGTH) {
     return {
@@ -40,6 +40,11 @@ export function createMatcher(pattern: string): Matcher {
 
   return {
     ok: true,
+    /**
+     * Checks whether the entire input matches the compiled pattern.
+     * @param input - String to match, limited to MAX_INPUT_LENGTH characters.
+     * @returns True for a full match; throws if the input is too long.
+     */
     test(input: string): boolean {
       // Oversized input is a caller bug, not a mismatch, so throw instead
       // of returning false. Controllers enforce the cap before calling.

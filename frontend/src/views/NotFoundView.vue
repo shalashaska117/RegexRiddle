@@ -2,6 +2,7 @@
 import RegexText from "../components/RegexText.vue";
 </script>
 
+<!-- Give an unknown route a clear message and links back to the game. -->
 <template>
   <div class="not-found">
     <p class="code" aria-hidden="true"><RegexText pattern="^404$" /></p>

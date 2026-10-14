@@ -13,6 +13,11 @@ export interface LeaderboardRow {
   avgAttempts: number;
 }
 
+/**
+ * Load players in leaderboard order.
+ * Parameters: none.
+ * @returns Promise of ranks, player profiles, solved counts and average attempts.
+ */
 export function getLeaderboard(): Promise<LeaderboardRow[]> {
   return apiGet<LeaderboardRow[]>("/api/leaderboard");
 }

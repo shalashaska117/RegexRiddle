@@ -3,6 +3,12 @@ import { test, expect } from "@playwright/test";
 // The tutorial and its tester are public, so none of this needs an account
 // and none of it spends the auth rate-limit budget the helpers pace.
 
+/**
+ * Check that the tutorial is reachable from the nav and lists its sections.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("the tutorial is reachable from the nav and lists its sections", async ({
   page,
 }) => {
@@ -21,6 +27,12 @@ test("the tutorial is reachable from the nav and lists its sections", async ({
   ).toBeVisible();
 });
 
+/**
+ * Check that the tester scores a pattern on the server.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("the tester scores a pattern on the server", async ({ page }) => {
   await page.goto("/tutorial");
   await page.locator("#tester-pattern").fill("colou?r");
@@ -37,6 +49,12 @@ test("the tester scores a pattern on the server", async ({ page }) => {
   );
 });
 
+/**
+ * Check that the tester reports a pattern the engine refuses.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("the tester reports a pattern the engine refuses", async ({ page }) => {
   await page.goto("/tutorial");
   await page.locator("#tester-pattern").fill("(a)\\1");
@@ -46,6 +64,12 @@ test("the tester reports a pattern the engine refuses", async ({ page }) => {
   );
 });
 
+/**
+ * Check that an example loads itself into the tester and is scored.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("an example loads itself into the tester and is scored", async ({
   page,
 }) => {

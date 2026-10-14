@@ -19,6 +19,11 @@ const props = defineProps<{
 const model = defineModel<string>({ required: true });
 const revealed = ref(false);
 
+/**
+ * Switch between hidden and readable password text.
+ * Parameters: none.
+ * @returns Nothing; flips the field's visibility state.
+ */
 function toggle(): void {
   revealed.value = !revealed.value;
 }

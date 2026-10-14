@@ -6,6 +6,12 @@ import { HttpClient } from "./http.js";
 
 const anonymous = new HttpClient();
 
+/**
+ * Calls the public regex tester without a session.
+ * @param pattern - Regex source to evaluate.
+ * @param subject - String to test against the pattern.
+ * @returns A promise with the tester response and status.
+ */
 async function testPattern(pattern: string, subject: string) {
   return anonymous.post("/api/regex/test", { pattern, subject });
 }

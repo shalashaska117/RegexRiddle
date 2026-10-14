@@ -29,11 +29,17 @@ let userId: number;
   assert.equal(login.status, 200);
 }
 
-// unauthenticated requests get 401
+// unauthenticated requests get the same authentication-required response
 {
-  assert.equal((await anonymous.get("/api/users/me")).status, 401);
-  assert.equal((await anonymous.patch("/api/users/me", { currentPassword: password, newPassword })).status, 401);
-  assert.equal((await anonymous.putFile("/api/users/me/avatar", "avatar", "a.png", "image/png", pngBytes)).status, 401);
+  const responses = [
+    await anonymous.get("/api/users/me"),
+    await anonymous.patch("/api/users/me", { currentPassword: password, newPassword }),
+    await anonymous.putFile("/api/users/me/avatar", "avatar", "a.png", "image/png", pngBytes),
+  ];
+  for (const res of responses) {
+    assert.equal(res.status, 401);
+    assert.deepEqual(res.body, { error: "Authentication required", code: "AUTHENTICATION_REQUIRED" });
+  }
 }
 
 // own profile, and the same body from /api/auth/me
@@ -58,6 +64,8 @@ let userId: number;
 {
   const wrong = await client.patch("/api/users/me", { currentPassword: "not the password", newPassword });
   assert.equal(wrong.status, 401);
+  assert.deepEqual(wrong.body, { error: "Current password is incorrect" });
+  assert.equal((await client.get("/api/users/me")).status, 200);
   const short = await client.patch("/api/users/me", { currentPassword: password, newPassword: "Short!1" });
   assert.equal(short.status, 422);
   const weak = await client.patch("/api/users/me", { currentPassword: password, newPassword: "nouppercase-1" });

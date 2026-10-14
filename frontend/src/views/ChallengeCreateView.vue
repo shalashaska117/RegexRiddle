@@ -21,26 +21,54 @@ const fieldErrors = ref<Record<string, string>>({});
 const banner = ref("");
 const pending = ref(false);
 
+/**
+ * Select the editable list for a control group.
+ * @param key - Control group to select.
+ * @returns The reactive array ref for positive or negative controls.
+ */
 function listFor(key: ControlsKey) {
   return key === "controlsPositive" ? controlsPositive : controlsNegative;
 }
 
+/**
+ * Remove a field's previous validation message.
+ * @param key - Field name or indexed control key whose error should be cleared.
+ * @returns Nothing; deletes the error entry if present.
+ */
 function clearError(key: string): void {
   delete fieldErrors.value[key];
 }
 
+/**
+ * Update a control string and clear its old validation errors.
+ * @param key - Positive or negative control group to edit.
+ * @param index - Zero-based index of the control row.
+ * @param value - Replacement string for that row.
+ * @returns Nothing; changes the row text and removes row/group errors.
+ */
 function onControlUpdate(key: ControlsKey, index: number, value: string): void {
   listFor(key).value[index] = value;
   clearError(`${key}.${index}`);
   clearError(key);
 }
 
+/**
+ * Add an empty control row within the ten-string limit.
+ * @param key - Positive or negative group receiving the new row.
+ * @returns Nothing; appends a row when allowed and clears the group error.
+ */
 function onControlAdd(key: ControlsKey): void {
   const list = listFor(key);
   if (list.value.length < 10) list.value.push("");
   clearError(key);
 }
 
+/**
+ * Remove a control row while keeping at least one per group.
+ * @param key - Positive or negative group to edit.
+ * @param index - Zero-based index of the row to remove.
+ * @returns Nothing; removes the row when allowed and clears shifted row errors.
+ */
 function onControlRemove(key: ControlsKey, index: number): void {
   const list = listFor(key);
   if (list.value.length <= 1) return;
@@ -51,6 +79,11 @@ function onControlRemove(key: ControlsKey, index: number): void {
   }
 }
 
+/**
+ * Check the form's required fields and length limits before submission.
+ * Parameters: none.
+ * @returns Validation messages keyed by field or control-row name; empty when valid.
+ */
 function validate(): Record<string, string> {
   const errors: Record<string, string> = {};
   const trimmedTitle = title.value.trim();
@@ -69,7 +102,13 @@ function validate(): Record<string, string> {
     errors.exampleNegative = "Keep the example at 1000 characters or fewer.";
   }
   for (const key of ["controlsPositive", "controlsNegative"] as const) {
-    listFor(key).value.forEach((value, index) => {
+    listFor(key).value.forEach(/**
+     * Record a validation error for an oversized control string.
+     * @param value - Control string being checked.
+     * @param index - Zero-based position used to identify its error row.
+     * @returns Nothing; adds an indexed error when this control exceeds the length limit.
+     */
+    (value, index) => {
       if (value.length > 1000) {
         errors[`${key}.${index}`] = "Keep each control at 1000 characters or fewer.";
       }
@@ -78,6 +117,11 @@ function validate(): Record<string, string> {
   return errors;
 }
 
+/**
+ * Check whether a server error belongs beside a visible field.
+ * @param key - Validation-error key returned by the server.
+ * @returns True for known fields and existing control rows, otherwise false.
+ */
 function isInlineKey(key: string): boolean {
   const known = [
     "title",
@@ -93,6 +137,11 @@ function isInlineKey(key: string): boolean {
   return Number(match[2]) < listFor(match[1] as ControlsKey).value.length;
 }
 
+/**
+ * Validate and create the riddle, then open its detail page.
+ * Parameters: none.
+ * @returns Promise that resolves without a value after navigation or after showing validation/request errors.
+ */
 async function onSubmit(): Promise<void> {
   banner.value = "";
   fieldErrors.value = validate();
@@ -209,6 +258,17 @@ async function onSubmit(): Promise<void> {
 
     <hr class="sep" />
 
+    <!--
+      Update callback: save an edited positive control and clear its errors.
+      @param index - Zero-based index of the control row.
+      @param value - Replacement string for that row.
+      @returns Nothing; forwards the edit to onControlUpdate.
+    -->
+    <!--
+      Remove callback: delete a positive control while keeping at least one.
+      @param index - Zero-based index of the row to remove.
+      @returns Nothing; forwards the row index to onControlRemove.
+    -->
     <ChallengeCreateControls
       group-key="controlsPositive"
       legend="Positive controls"
@@ -223,6 +283,17 @@ async function onSubmit(): Promise<void> {
 
     <hr class="sep" />
 
+    <!--
+      Update callback: save an edited negative control and clear its errors.
+      @param index - Zero-based index of the control row.
+      @param value - Replacement string for that row.
+      @returns Nothing; forwards the edit to onControlUpdate.
+    -->
+    <!--
+      Remove callback: delete a negative control while keeping at least one.
+      @param index - Zero-based index of the row to remove.
+      @returns Nothing; forwards the row index to onControlRemove.
+    -->
     <ChallengeCreateControls
       group-key="controlsNegative"
       legend="Negative controls"

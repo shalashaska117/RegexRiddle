@@ -23,6 +23,12 @@ const PARTIAL_PATTERN = "#[a-f]{3,6}";
 
 // Registers a fresh author in an isolated context and creates the riddle,
 // so the author's session never leaks into the solver's page.
+/**
+ * Create a riddle in a separate author session.
+ * @param browser - Browser used to open the isolated author context.
+ * @param title - Title assigned to the new riddle.
+ * @returns A promise resolving to the new riddle ID; the author context is closed.
+ */
 async function createRiddle(browser: Browser, title: string): Promise<number> {
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -32,6 +38,12 @@ async function createRiddle(browser: Browser, title: string): Promise<number> {
   return id;
 }
 
+/**
+ * Register a fresh solver and open the requested challenge.
+ * @param page - Browser page used for the solver session.
+ * @param challengeId - ID of the challenge to open.
+ * @returns A promise with no value, resolved after opening the challenge.
+ */
 async function openAsNewSolver(page: Page, challengeId: number): Promise<void> {
   await registerUser(page, uniqueName("greedy_star"), PASSWORD);
   await page.goto(`/challenges/${challengeId}`);
@@ -39,11 +51,22 @@ async function openAsNewSolver(page: Page, challengeId: number): Promise<void> {
 
 // Submissions share one 60-per-minute budget per ip, so a 429 is retried
 // after the window resets.
+/**
+ * Submit a pattern up to three times when responses are rate limited.
+ * @param page - Browser page with the attempt form.
+ * @param pattern - Regex to submit as the proposed solution.
+ * @returns A promise with no value, resolved after the final response.
+ */
 async function submitPattern(page: Page, pattern: string): Promise<void> {
-  for (let attempt = 1; ; attempt++) {
+  for (let attempt = 1;;attempt++) {
     await page.locator("#pattern-input").fill(pattern);
     const [response] = await Promise.all([
       page.waitForResponse(
+        /**
+         * Select the response to an attempt submission.
+         * @param res - Browser response to inspect.
+         * @returns True for a POST to a challenge attempts endpoint.
+         */
         (res) =>
           /\/api\/challenges\/\d+\/attempts$/.test(res.url()) &&
           res.request().method() === "POST",
@@ -55,6 +78,13 @@ async function submitPattern(page: Page, pattern: string): Promise<void> {
   }
 }
 
+/**
+ * Check that a partial attempt reports the right positives and negatives counts.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @param fixtures.browser - Browser used to create a separate author session.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("a partial attempt reports the right positives and negatives counts", async ({
   page,
   browser,
@@ -75,6 +105,13 @@ test("a partial attempt reports the right positives and negatives counts", async
   await expect(rows.first()).toContainText("negatives 1/2");
 });
 
+/**
+ * Check that an engine-rejected pattern shows the inline error and adds no history row.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @param fixtures.browser - Browser used to create a separate author session.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("an engine-rejected pattern shows the inline error and adds no history row", async ({
   page,
   browser,
@@ -100,6 +137,13 @@ test("an engine-rejected pattern shows the inline error and adds no history row"
   await expect(rows.first()).toContainText(`/${PARTIAL_PATTERN}/`);
 });
 
+/**
+ * Check that solving flips to the solved banner and the history keeps every attempt.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @param fixtures.browser - Browser used to create a separate author session.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("solving flips to the solved banner and the history keeps every attempt", async ({
   page,
   browser,
@@ -122,6 +166,13 @@ test("solving flips to the solved banner and the history keeps every attempt", a
   await expect(rows.nth(1)).toContainText("solving attempt");
 });
 
+/**
+ * Check that the author opening their own riddle sees the notice and no form.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @param fixtures.browser - Browser used to create a separate author session.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("the author opening their own riddle sees the notice and no form", async ({
   page,
   browser,

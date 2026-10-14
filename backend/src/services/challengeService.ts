@@ -51,6 +51,12 @@ export interface ChallengeDetail {
   myAttempts: AttemptSummary[];
 }
 
+/**
+ * Validates and stores a challenge with its secret controls.
+ * @param authorId - User creating the challenge.
+ * @param input - Title, secret regex, public examples and positive and negative controls.
+ * @returns A promise for an object whose id identifies the new challenge.
+ */
 export async function createChallenge(
   authorId: number,
   input: CreateChallengeInput,
@@ -69,8 +75,22 @@ export async function createChallenge(
   // so a duplicate entry reports the duplication instead of a match failure.
   const firstUseOf = new Map<string, string>();
   const allControls = [
-    ...input.controlsPositive.map((value, index) => ({ value, field: "controlsPositive", index })),
-    ...input.controlsNegative.map((value, index) => ({ value, field: "controlsNegative", index })),
+    ...input.controlsPositive.map(
+      /**
+       * Labels a positive control for duplicate checks.
+       * @param value - Control string to check.
+       * @param index - Position in the positive control array.
+       * @returns The value, its controlsPositive field name and its index.
+       */
+      (value, index) => ({ value, field: "controlsPositive", index })),
+    ...input.controlsNegative.map(
+      /**
+       * Labels a negative control for duplicate checks.
+       * @param value - Control string to check.
+       * @param index - Position in the negative control array.
+       * @returns The value, its controlsNegative field name and its index.
+       */
+      (value, index) => ({ value, field: "controlsNegative", index })),
   ];
   for (const { value, field, index } of allControls) {
     const firstUse = firstUseOf.get(value);
@@ -87,18 +107,32 @@ export async function createChallenge(
   if (matcher.test(input.exampleNegative)) {
     errors["exampleNegative"] = `must not match the regex, but "${input.exampleNegative}" does`;
   }
-  input.controlsPositive.forEach((value, index) => {
-    if (!matcher.test(value)) {
-      errors[`controlsPositive.${index}`] ??=
-        `positive control at index ${index} ("${value}") must match the regex, but does not`;
-    }
-  });
-  input.controlsNegative.forEach((value, index) => {
-    if (matcher.test(value)) {
-      errors[`controlsNegative.${index}`] ??=
-        `negative control at index ${index} ("${value}") must not match the regex, but does`;
-    }
-  });
+  input.controlsPositive.forEach(
+    /**
+     * Checks that a positive control matches the secret regex.
+     * @param value - Positive control string to test.
+     * @param index - Array position used to identify its validation error.
+     * @returns No value; records an error when the control does not match.
+     */
+    (value, index) => {
+      if (!matcher.test(value)) {
+        errors[`controlsPositive.${index}`] ??=
+          `positive control at index ${index} ("${value}") must match the regex, but does not`;
+      }
+    });
+  input.controlsNegative.forEach(
+    /**
+     * Checks that a negative control does not match the secret regex.
+     * @param value - Negative control string to test.
+     * @param index - Array position used to identify its validation error.
+     * @returns No value; records an error when the control matches.
+     */
+    (value, index) => {
+      if (matcher.test(value)) {
+        errors[`controlsNegative.${index}`] ??=
+          `negative control at index ${index} ("${value}") must not match the regex, but does`;
+      }
+    });
 
   if (Object.keys(errors).length > 0) {
     throw new ValidationError(errors);
@@ -115,8 +149,20 @@ export async function createChallenge(
       exampleNegative: input.exampleNegative,
       controlStrings: {
         create: [
-          ...input.controlsPositive.map((value) => ({ value, kind: "POSITIVE" as const })),
-          ...input.controlsNegative.map((value) => ({ value, kind: "NEGATIVE" as const })),
+          ...input.controlsPositive.map(
+            /**
+             * Prepares a positive control for storage.
+             * @param value - Positive control string to store.
+             * @returns A record with the value and POSITIVE kind.
+             */
+            (value) => ({ value, kind: "POSITIVE" as const })),
+          ...input.controlsNegative.map(
+            /**
+             * Prepares a negative control for storage.
+             * @param value - Negative control string to store.
+             * @returns A record with the value and NEGATIVE kind.
+             */
+            (value) => ({ value, kind: "NEGATIVE" as const })),
         ],
       },
     },
@@ -124,6 +170,12 @@ export async function createChallenge(
   });
 }
 
+/**
+ * Lists challenges with public details and user progress.
+ * @param userId - User whose attempts and solved flags are included.
+ * @returns A promise for challenges ordered newest first, with ID, title, author, creation time, user progress and
+ * solver count.
+ */
 export async function listChallenges(userId: number): Promise<ChallengeListEntry[]> {
   // Three queries however long the list gets: the challenges, the caller's
   // attempt counts, and every (challenge, user) pair with a solved attempt.
@@ -149,7 +201,13 @@ export async function listChallenges(userId: number): Promise<ChallengeListEntry
     }),
   ]);
 
-  const myCounts = new Map(myAttemptCounts.map((row) => [row.challengeId, row._count._all]));
+  const myCounts = new Map(myAttemptCounts.map(
+    /**
+     * Pairs each challenge with the user's attempt count.
+     * @param row - Grouped attempt row with challengeId and _count._all.
+     * @returns A pair containing the challenge ID and attempt count.
+     */
+    (row) => [row.challengeId, row._count._all]));
   const solvedCounts = new Map<number, number>();
   const solvedByMe = new Set<number>();
   for (const pair of solvedPairs) {
@@ -159,17 +217,30 @@ export async function listChallenges(userId: number): Promise<ChallengeListEntry
     }
   }
 
-  return challenges.map((challenge) => ({
-    id: challenge.id,
-    title: challenge.title,
-    author: challenge.author,
-    createdAt: challenge.createdAt,
-    solvedByMe: solvedByMe.has(challenge.id),
-    myAttempts: myCounts.get(challenge.id) ?? 0,
-    solvedCount: solvedCounts.get(challenge.id) ?? 0,
-  }));
+  return challenges.map(
+    /**
+     * Adds user progress and solver totals to a challenge.
+     * @param challenge - Public challenge ID, title, author and creation time.
+     * @returns The public details with solvedByMe, myAttempts and solvedCount.
+     */
+    (challenge) => ({
+      id: challenge.id,
+      title: challenge.title,
+      author: challenge.author,
+      createdAt: challenge.createdAt,
+      solvedByMe: solvedByMe.has(challenge.id),
+      myAttempts: myCounts.get(challenge.id) ?? 0,
+      solvedCount: solvedCounts.get(challenge.id) ?? 0,
+    }));
 }
 
+/**
+ * Loads a challenge's public details and one user's attempts.
+ * @param userId - User whose attempt history and solved flag are included.
+ * @param challengeId - Challenge to load.
+ * @returns A promise for ID, title, author, creation time, examples, control counts, solved flag and attempt
+ * history.
+ */
 export async function getChallenge(userId: number, challengeId: number): Promise<ChallengeDetail> {
   const challenge = await prisma.challenge.findUnique({
     where: { id: challengeId },
@@ -223,7 +294,13 @@ export async function getChallenge(userId: number, challengeId: number): Promise
     examplePositive: challenge.examplePositive,
     exampleNegative: challenge.exampleNegative,
     controlCounts,
-    solvedByMe: myAttempts.some((attempt) => attempt.solved),
+    solvedByMe: myAttempts.some(
+      /**
+       * Checks whether an attempt solved the challenge.
+       * @param attempt - Attempt whose solved flag is checked.
+       * @returns True if that attempt solved the challenge.
+       */
+      (attempt) => attempt.solved),
     myAttempts,
   };
 }

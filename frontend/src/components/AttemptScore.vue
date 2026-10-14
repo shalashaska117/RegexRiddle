@@ -8,6 +8,7 @@ const props = defineProps<{
 }>();
 </script>
 
+<!-- Show positive and negative control scores together with the solved status. -->
 <template>
   <span class="attempt-score">
     <span>

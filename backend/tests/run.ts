@@ -14,13 +14,27 @@ process.env.AUTH_RATE_LIMIT_MAX ??= "1000";
 const { app } = await import("../src/app.js");
 
 const server = app.listen(0);
-await new Promise((resolve) => server.once("listening", resolve));
+await new Promise(
+  /**
+   * Resolves the startup wait once the test server is listening.
+   * @param resolve - Promise resolver called by the listening event.
+   * @returns The server instance; the Promise constructor ignores this return value.
+   */
+  (resolve) => server.once("listening", resolve)
+);
 const addr = server.address();
 if (addr === null || typeof addr === "string") throw new Error("no port assigned");
 process.env.TEST_BASE_URL = `http://127.0.0.1:${addr.port}`;
 
 let failed = 0;
-const files = readdirSync(here).filter((f) => f.endsWith(".test.ts")).sort();
+const files = readdirSync(here).filter(
+  /**
+   * Selects the API test modules for the runner.
+   * @param f - Filename from the test directory.
+   * @returns Whether the filename ends with .test.ts.
+   */
+  (f) => f.endsWith(".test.ts")
+).sort();
 for (const file of files) {
   try {
     // as a URL, not a path: a Windows path starts with a drive letter, which

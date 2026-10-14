@@ -9,17 +9,35 @@ const PNG_1X1 = Buffer.from(
   "base64",
 );
 
+/**
+ * Log out through the header and wait for the landing page.
+ * @param page - Browser page with the current session.
+ * @returns A promise with no value, resolved after navigation.
+ */
 async function logout(page: Page): Promise<void> {
   await page.getByRole("button", { name: "Log out" }).click();
   await page.waitForURL("/");
 }
 
+/**
+ * Find the signed-in user link in the main navigation.
+ * @param page - Browser page to search.
+ * @param username - Exact username shown in the header.
+ * @returns The profile-link locator used in assertions.
+ */
 function navUserLink(page: Page, username: string) {
   return page
     .getByRole("navigation", { name: "Main" })
     .getByRole("link", { name: username, exact: true });
 }
 
+/**
+ * Open the profile and submit a password change.
+ * @param page - Browser page with the signed-in user.
+ * @param current - Password to send as the current password.
+ * @param next - New password entered in the new-password and confirmation fields.
+ * @returns A promise with no value, resolved after submitting the form.
+ */
 async function submitPasswordChange(
   page: Page,
   current: string,
@@ -32,6 +50,12 @@ async function submitPasswordChange(
   await page.getByRole("button", { name: "Change password" }).click();
 }
 
+/**
+ * Check that changing the password with a wrong current password shows the inline error.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("changing the password with a wrong current password shows the inline error", async ({
   page,
 }) => {
@@ -41,6 +65,12 @@ test("changing the password with a wrong current password shows the inline error
   await expect(page).toHaveURL("/profile");
 });
 
+/**
+ * Check that a successful password change allows re-login with the new password.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("a successful password change allows re-login with the new password", async ({
   page,
 }) => {
@@ -55,6 +85,12 @@ test("a successful password change allows re-login with the new password", async
   await expect(navUserLink(page, username)).toBeVisible();
 });
 
+/**
+ * Check that uploading a png avatar makes the header avatar image appear.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("uploading a png avatar makes the header avatar image appear", async ({
   page,
 }) => {
@@ -73,6 +109,12 @@ test("uploading a png avatar makes the header avatar image appear", async ({
   await expect(page.locator("header img.avatar")).toBeVisible();
 });
 
+/**
+ * Check that two solvers of the same riddle appear on the leaderboard in efficiency order.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("two solvers of the same riddle appear on the leaderboard in efficiency order", async ({
   page,
 }) => {
@@ -120,8 +162,20 @@ test("two solvers of the same riddle appear on the leaderboard in efficiency ord
   // The database is shared, so rows from other tests may sit anywhere around
   // these two; only their relative order is this test's to assert.
   const rowTexts = await page.locator("tbody tr").allTextContents();
-  const fastIndex = rowTexts.findIndex((text) => text.includes(fastSolver));
-  const slowIndex = rowTexts.findIndex((text) => text.includes(slowSolver));
+  const fastIndex = rowTexts.findIndex(
+    /**
+     * Find the leaderboard row for the faster solver.
+     * @param text - Text of one leaderboard row.
+     * @returns True when the row contains fastSolver.
+     */
+    (text) => text.includes(fastSolver));
+  const slowIndex = rowTexts.findIndex(
+    /**
+     * Find the leaderboard row for the slower solver.
+     * @param text - Text of one leaderboard row.
+     * @returns True when the row contains slowSolver.
+     */
+    (text) => text.includes(slowSolver));
   expect(fastIndex).toBeGreaterThanOrEqual(0);
   expect(slowIndex).toBeGreaterThanOrEqual(0);
   expect(fastIndex).toBeLessThan(slowIndex);

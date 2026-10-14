@@ -9,7 +9,12 @@ import PasswordInput from "../components/PasswordInput.vue";
 
 const auth = useAuthStore();
 
-const memberSince = computed<string>(() => {
+const memberSince = computed<string>(/**
+ * Format the signed-in account's joining date.
+ * Parameters: none.
+ * @returns English date text, or an empty string when no user is loaded.
+ */
+() => {
   if (!auth.user) return "";
   return new Date(auth.user.createdAt).toLocaleDateString("en", {
     year: "numeric",
@@ -28,6 +33,11 @@ const avatarBanner = ref("");
 const avatarUpdated = ref(false);
 const avatarPending = ref(false);
 
+/**
+ * Validate the selected avatar before enabling its upload.
+ * @param event - File-input change event containing the selected image, if any.
+ * @returns Nothing; stores an accepted file or shows a type/size error.
+ */
 function onAvatarChange(event: Event): void {
   const input = event.target as HTMLInputElement;
   const file = input.files?.[0] ?? null;
@@ -47,6 +57,11 @@ function onAvatarChange(event: Event): void {
   avatarFile.value = file;
 }
 
+/**
+ * Upload the selected avatar and refresh its displayed URL.
+ * Parameters: none.
+ * @returns Promise that resolves without a value after updating the avatar or showing the upload error.
+ */
 async function onAvatarSubmit(): Promise<void> {
   if (!avatarFile.value || avatarPending.value) return;
   avatarPending.value = true;
@@ -87,6 +102,11 @@ const passwordBanner = ref("");
 const passwordChanged = ref(false);
 const passwordPending = ref(false);
 
+/**
+ * Validate and submit a password change.
+ * Parameters: none.
+ * @returns Promise that resolves without a value after confirmation or after displaying validation/request errors.
+ */
 async function onPasswordSubmit(): Promise<void> {
   if (passwordPending.value) return;
   currentPasswordError.value = "";
@@ -114,7 +134,7 @@ async function onPasswordSubmit(): Promise<void> {
     passwordChanged.value = true;
   } catch (err) {
     if (err instanceof ApiError) {
-      if (err.status === 401) {
+      if (err.status === 401 && err.code !== "AUTHENTICATION_REQUIRED") {
         currentPasswordError.value = "The current password is wrong.";
       } else if (Object.keys(err.fieldErrors).length > 0) {
         currentPasswordError.value = err.fieldErrors.currentPassword ?? "";

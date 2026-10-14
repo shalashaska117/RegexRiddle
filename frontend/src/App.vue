@@ -12,27 +12,48 @@ const auth = useAuthStore();
 const prefs = usePrefsStore();
 const router = useRouter();
 
+/**
+ * Log out and return to the landing page.
+ * Parameters: none.
+ * @returns Promise that resolves without a value after logout and navigation.
+ */
 async function onLogout(): Promise<void> {
   await auth.logout();
   await router.push("/");
 }
 
+/**
+ * Save and apply the selected reading font.
+ * @param event - Change event from the font selector.
+ * @returns Nothing; updates the font preference and page styling.
+ */
 function onFontChange(event: Event): void {
   const value = (event.target as HTMLSelectElement).value as FontPreference;
   prefs.setFont(value);
 }
 
+/**
+ * Save and apply the selected text size.
+ * @param event - Change event from the text-size selector.
+ * @returns Nothing; updates the text-size preference and root font size.
+ */
 function onTextScaleChange(event: Event): void {
   const value = Number((event.target as HTMLSelectElement).value) as TextScale;
   prefs.setTextScale(value);
 }
 
+/**
+ * Save and apply the selected color theme.
+ * @param event - Change event from the theme selector.
+ * @returns Nothing; updates the theme preference and page styling.
+ */
 function onThemeChange(event: Event): void {
   const value = (event.target as HTMLSelectElement).value as ThemePreference;
   prefs.setTheme(value);
 }
 </script>
 
+<!-- Shared page shell: navigation, routed content and saved reading preferences. -->
 <template>
   <a class="skip-link" href="#main-content">Skip to content</a>
   <header class="site-header">

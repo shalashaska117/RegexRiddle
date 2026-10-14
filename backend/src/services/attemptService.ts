@@ -16,6 +16,14 @@ export interface AttemptScore {
   attemptNumber: number;
 }
 
+/**
+ * Scores and stores a user's regex attempt.
+ * @param userId - User submitting the attempt.
+ * @param challengeId - Challenge to solve.
+ * @param proposedRegex - Pattern to compare against the secret controls.
+ * @returns A promise for positive and negative success counts and totals, the solved flag and the attempt
+ * number.
+ */
 export async function submitAttempt(
   userId: number,
   challengeId: number,
@@ -82,6 +90,13 @@ export async function submitAttempt(
   return { positivesMatched, totalPositives, negativesMatched, totalNegatives, solved, attemptNumber };
 }
 
+/**
+ * Loads a user's attempts on one challenge.
+ * @param userId - User whose attempts are loaded.
+ * @param challengeId - Challenge to read.
+ * @returns A promise for attempts ordered oldest first, with each regex, score counts, solved flag and
+ * creation time.
+ */
 export async function listAttempts(
   userId: number,
   challengeId: number,

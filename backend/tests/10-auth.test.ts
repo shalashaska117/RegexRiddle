@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
 import { HttpClient } from "./http.js";
+import { prisma } from "../src/db.js";
 
 const client = new HttpClient();
 
@@ -33,6 +34,7 @@ const password = "A sufficiently long password!";
   const unknownUser = await client.post("/api/auth/login", { username: `u_${unique}x`, password });
   assert.equal(unknownUser.status, 401);
   assert.deepEqual(wrongPassword.body, unknownUser.body);
+  assert.deepEqual(Object.keys(wrongPassword.body as object), ["error"]);
 }
 
 // login
@@ -43,7 +45,14 @@ let userId: number;
   const body = res.body as { id: number; username: string };
   assert.equal(body.username, username);
   userId = body.id;
-  assert.ok(res.setCookies.some((c) => c.startsWith("rr.sid=")));
+  assert.ok(res.setCookies.some(
+    /**
+     * Identifies the session cookie in the login response.
+     * @param c - Set-Cookie header value to inspect.
+     * @returns Whether the header sets the session cookie.
+     */
+    (c) => c.startsWith("rr.sid=")
+  ));
 }
 
 // me while logged in; same shape as GET /api/users/me
@@ -68,6 +77,7 @@ let userId: number;
 {
   const res = await client.get("/api/auth/me");
   assert.equal(res.status, 401);
+  assert.deepEqual(res.body, { error: "Authentication required", code: "AUTHENTICATION_REQUIRED" });
 }
 
 // validation rejections on register
@@ -114,4 +124,20 @@ let userId: number;
   // none of the rejected registrations created a user, so the names are free
   const reuse = await client.post("/api/auth/register", { username: `u_${unique}d`, password });
   assert.equal(reuse.status, 201);
+}
+
+// The browser can retain its cookie after the server-side session expires.
+{
+  const login = await client.post("/api/auth/login", { username, password });
+  assert.equal(login.status, 200);
+  const expired = await prisma.$executeRaw`
+    UPDATE "session"
+    SET expire = NOW() - INTERVAL '1 second'
+    WHERE sess->>'userId' = ${String(userId)}
+  `;
+  assert.equal(expired, 1);
+
+  const res = await client.get("/api/challenges");
+  assert.equal(res.status, 401);
+  assert.deepEqual(res.body, { error: "Authentication required", code: "AUTHENTICATION_REQUIRED" });
 }

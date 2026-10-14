@@ -8,12 +8,31 @@ export interface RateLimitOptions {
   key?: (req: Request) => string;
 }
 
-// Fixed-window in-memory limiter, one counter per ip and route. Counters
-// reset on restart, which is fine for a single-process demo.
+/**
+ * Creates a request limiter with counters kept in memory.
+ * @param options - Request limit settings.
+ * @param options.windowMs - Duration of each counting window in milliseconds.
+ * @param options.max - Maximum requests allowed in one window.
+ * @param options.key - Optional function that assigns requests to counters.
+ * @returns Middleware that allows requests or sends status 429 when over the limit.
+ */
 export function rateLimit({ windowMs, max, key }: RateLimitOptions) {
   const windows = new Map<string, { start: number; count: number }>();
-  const keyOf = key ?? ((req: Request) => `${req.ip}:${req.baseUrl}${req.path}`);
+  const keyOf = key ?? (
+    /**
+     * Groups requests by IP address and full route path.
+     * @param req - Request whose address and route form the counter key.
+     * @returns The key for this IP address and route.
+     */
+    (req: Request) => `${req.ip}:${req.baseUrl}${req.path}`);
 
+  /**
+   * Counts the request and enforces its window limit.
+   * @param req - Request to assign to a counter.
+   * @param res - Response used to send status 429 when over the limit.
+   * @param next - Continues requests within the limit.
+   * @returns No value; calls next or sends a rate-limit response.
+   */
   return (req: Request, res: Response, next: NextFunction): void => {
     const now = Date.now();
     if (windows.size > 10_000) {

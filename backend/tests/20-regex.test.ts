@@ -7,6 +7,11 @@ import {
   MAX_INPUT_LENGTH,
 } from "../src/services/regex/engine.js";
 
+/**
+ * Compiles a test pattern and fails if the engine rejects it.
+ * @param pattern - Regex source expected to be valid.
+ * @returns The compiled matcher.
+ */
 function compile(pattern: string) {
   const m = createMatcher(pattern);
   if (!m.ok) throw new Error(`pattern ${pattern} should compile: ${m.error}`);
@@ -115,5 +120,12 @@ function compile(pattern: string) {
 // input over the length cap throws instead of silently failing the match
 {
   const m = compile("a*");
-  assert.throws(() => m.test("a".repeat(MAX_INPUT_LENGTH + 1)), RangeError);
+  assert.throws(
+    /**
+     * Exercises rejection of a subject longer than the input limit.
+     * Parameters: none.
+     * @returns The match result if the expected RangeError is not thrown.
+     */
+    () => m.test("a".repeat(MAX_INPUT_LENGTH + 1))
+  , RangeError);
 }

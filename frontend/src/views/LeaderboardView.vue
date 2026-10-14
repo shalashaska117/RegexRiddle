@@ -11,6 +11,11 @@ const rows = ref<LeaderboardRow[]>([]);
 const loading = ref(true);
 const error = ref("");
 
+/**
+ * Fetch the current ranking for the leaderboard.
+ * Parameters: none.
+ * @returns Promise that resolves without a value after updating rows or the error state.
+ */
 async function load(): Promise<void> {
   loading.value = true;
   error.value = "";

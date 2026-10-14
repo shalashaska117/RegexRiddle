@@ -24,8 +24,11 @@ const extensionByType: Record<string, string> = {
   "image/webp": ".webp",
 };
 
-// Content type from the file's leading bytes: PNG 89 50 4E 47, JPEG FF D8 FF,
-// WEBP is RIFF at offset 0 plus WEBP at offset 8. Null for anything else.
+/**
+ * Identifies an accepted image type from its leading bytes.
+ * @param data - Uploaded bytes to inspect.
+ * @returns The PNG, JPEG or WebP MIME type, or null for other bytes.
+ */
 function sniffImageType(data: Buffer): string | null {
   if (data[0] === 0x89 && data[1] === 0x50 && data[2] === 0x4e && data[3] === 0x47) {
     return "image/png";
@@ -43,16 +46,34 @@ function sniffImageType(data: Buffer): string | null {
   return null;
 }
 
+/**
+ * Sends the current user's profile.
+ * @param req - Request with the current session.
+ * @param res - Response used to send the public profile.
+ * @returns A promise that resolves with no value after sending the profile.
+ */
 export async function me(req: Request, res: Response): Promise<void> {
   res.json(await userService.getProfile(sessionUserId(req)));
 }
 
+/**
+ * Changes the current user's password.
+ * @param req - Request with the session, current password and new password.
+ * @param res - Response used to send status 204 after the change.
+ * @returns A promise that resolves with no value after changing the password.
+ */
 export async function changePassword(req: Request, res: Response): Promise<void> {
   const { currentPassword, newPassword } = parseBody(req, changePasswordShape);
   await userService.changePassword(sessionUserId(req), currentPassword, newPassword);
   res.status(204).end();
 }
 
+/**
+ * Validates and saves the current user's avatar.
+ * @param req - Request with the session and uploaded image.
+ * @param res - Response used to send the saved avatar URL.
+ * @returns A promise that resolves with no value after sending the avatar URL.
+ */
 export async function uploadAvatar(req: Request, res: Response): Promise<void> {
   // the form carries no text fields; reject strays, matching the strict
   // JSON bodies everywhere else
@@ -70,12 +91,31 @@ export async function uploadAvatar(req: Request, res: Response): Promise<void> {
   res.json(await userService.updateAvatar(sessionUserId(req), file.buffer, extension));
 }
 
+/**
+ * Sends a user's stored avatar file.
+ * @param req - Request with the avatar owner's ID.
+ * @param res - Response used to send the image and its content type.
+ * @returns A promise that resolves with no value after sending the file.
+ */
 export async function getAvatar(req: Request, res: Response): Promise<void> {
   const { id } = parseParams(req, idParamShape);
   const { absolutePath, contentType } = await userService.getAvatarFile(id);
-  await new Promise<void>((resolve, reject) => {
-    res.sendFile(absolutePath, { headers: { "Content-Type": contentType } }, (err) =>
-      err ? reject(err) : resolve(),
-    );
-  });
+  await new Promise<void>(
+    /**
+     * Starts sending the avatar with its content type.
+     * @param resolve - Completes the promise when the file is sent.
+     * @param reject - Fails the promise if sending fails.
+     * @returns No value; starts the file response.
+     */
+    (resolve, reject) => {
+      res.sendFile(absolutePath, { headers: { "Content-Type": contentType } },
+        /**
+         * Completes the avatar response promise.
+         * @param err - File response error, or no error on success.
+         * @returns No value; rejects on error or resolves on success.
+         */
+        (err) =>
+          err ? reject(err) : resolve(),
+      );
+    });
 }

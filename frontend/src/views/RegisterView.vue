@@ -27,6 +27,11 @@ const banner = ref("");
 const fieldErrors = ref<Record<string, string>>({});
 const confirmError = ref("");
 
+/**
+ * Check the password confirmation, create the account and sign in.
+ * Parameters: none.
+ * @returns Promise that resolves without a value after navigation or after displaying registration errors.
+ */
 async function onSubmit(): Promise<void> {
   banner.value = "";
   fieldErrors.value = {};

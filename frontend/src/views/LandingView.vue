@@ -2,6 +2,7 @@
 import RegexText from "../components/RegexText.vue";
 </script>
 
+<!-- Introduce the game and link to challenges, instructions and the tutorial. -->
 <template>
   <div class="landing">
     <section class="hero">

@@ -17,6 +17,11 @@ let timer: number | undefined;
 // result.
 let latest = 0;
 
+/**
+ * Check the current inputs and keep only the latest request's result.
+ * Parameters: none.
+ * @returns Promise that resolves without a value after updating feedback or clearing an empty pattern.
+ */
 async function run(): Promise<void> {
   window.clearTimeout(timer);
   const currentPattern = pattern.value;
@@ -50,16 +55,37 @@ async function run(): Promise<void> {
   }
 }
 
-watch([pattern, subject], () => {
+watch([pattern, subject], /**
+ * Delay automatic checks until typing pauses.
+ * Parameters: none.
+ * @returns Nothing; replaces the pending debounce timer.
+ */
+() => {
   window.clearTimeout(timer);
-  timer = window.setTimeout(() => void run(), DEBOUNCE_MS);
+  timer = window.setTimeout(/**
+   * Start the check when the debounce delay ends.
+   * Parameters: none.
+   * @returns Nothing; starts the asynchronous check without waiting for it.
+   */
+  () => void run(), DEBOUNCE_MS);
 });
 
-onBeforeUnmount(() => window.clearTimeout(timer));
+onBeforeUnmount(/**
+ * Cancel a scheduled check when the tester is removed.
+ * Parameters: none.
+ * @returns Nothing; clears the debounce timer.
+ */
+() => window.clearTimeout(timer));
 
 // Called by the tutorial page when a reader picks an example. The watcher
 // above fires first and queues a delayed run, so this waits for it and then
 // runs straight away instead.
+/**
+ * Copy a tutorial example into the tester and check it immediately.
+ * @param nextPattern - Example regex to place in the pattern field.
+ * @param nextSubject - Example string to place in the subject field.
+ * @returns Promise that resolves without a value after focusing the input and updating feedback.
+ */
 async function load(nextPattern: string, nextSubject: string): Promise<void> {
   pattern.value = nextPattern;
   subject.value = nextSubject;

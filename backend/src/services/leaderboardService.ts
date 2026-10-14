@@ -22,6 +22,11 @@ interface RawRow {
 // attempt is the solved row with the lowest id, since ids follow insertion
 // order; counting rows with id at most that stays correct even if attempts
 // after a solve existed. No user input reaches this query.
+/**
+ * Ranks the top 50 users by solved count and average attempts.
+ * Parameters: none.
+ * @returns A promise for ranked users with ID, username, avatar URL, solved count and average attempts.
+ */
 export async function getLeaderboard(): Promise<LeaderboardRow[]> {
   const rows = await prisma.$queryRaw<RawRow[]>`
     WITH first_solved AS (
@@ -55,14 +60,21 @@ export async function getLeaderboard(): Promise<LeaderboardRow[]> {
     LIMIT 50
   `;
 
-  return rows.map((row, index) => ({
-    rank: index + 1,
-    user: {
-      id: row.id,
-      username: row.username,
-      avatarUrl: avatarUrl(row.id, row.avatarPath),
-    },
-    solvedCount: row.solvedCount,
-    avgAttempts: row.avgAttempts,
-  }));
+  return rows.map(
+    /**
+     * Builds a public leaderboard row with its rank.
+     * @param row - Ranked database row with user data and solving statistics.
+     * @param index - Zero-based position in the rankings.
+     * @returns The one-based rank, public user details, solved count and average attempts.
+     */
+    (row, index) => ({
+      rank: index + 1,
+      user: {
+        id: row.id,
+        username: row.username,
+        avatarUrl: avatarUrl(row.id, row.avatarPath),
+      },
+      solvedCount: row.solvedCount,
+      avgAttempts: row.avgAttempts,
+    }));
 }

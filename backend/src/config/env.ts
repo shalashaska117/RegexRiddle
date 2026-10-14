@@ -1,3 +1,8 @@
+/**
+ * Reads a required environment variable.
+ * @param name - Environment variable to read.
+ * @returns Its nonempty value; throws if it is missing.
+ */
 function required(name: string): string {
   const value = process.env[name];
   if (!value) {

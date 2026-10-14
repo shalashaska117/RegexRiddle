@@ -1,15 +1,22 @@
 import type { NextFunction, Request, Response } from "express";
 import { ZodError } from "zod";
-import { AppError, ValidationError } from "../errors.js";
+import { AppError, AuthenticationRequiredError, ValidationError } from "../errors.js";
 
+/**
+ * Sends a JSON response for an unknown route.
+ * @param _req - Unused request supplied by Express.
+ * @param res - Response used to send status 404 and its message.
+ * @returns No value; sends the not-found response.
+ */
 export function notFoundHandler(_req: Request, res: Response): void {
   res.status(404).json({ error: "Not found" });
 }
 
-// Errors thrown by express middleware (the JSON body parser in particular)
-// carry a numeric 4xx status: malformed JSON is 400, a body over the size
-// limit is 413. Returns that status, or null when the error is not a
-// client fault.
+/**
+ * Reads a client-error status from an error object.
+ * @param err - Error whose status or statusCode is checked.
+ * @returns An integer status from 400 to 499, or null if none is present.
+ */
 function clientFaultStatus(err: unknown): number | null {
   if (typeof err !== "object" || err === null) {
     return null;
@@ -22,8 +29,14 @@ function clientFaultStatus(err: unknown): number | null {
   return null;
 }
 
-// Express identifies the error middleware by its four-parameter signature,
-// so _next must stay even though it is unused.
+/**
+ * Converts errors into safe JSON responses.
+ * @param err - Error to classify and report.
+ * @param _req - Unused request supplied by Express.
+ * @param res - Response used to send the status and error details.
+ * @param _next - Unused callback required for Express error middleware.
+ * @returns No value; sends the error response and logs unexpected failures.
+ */
 export function errorHandler(
   err: unknown,
   _req: Request,
@@ -44,6 +57,10 @@ export function errorHandler(
   // before the AppError branch, since ValidationError extends it
   if (err instanceof ValidationError) {
     res.status(err.status).json({ error: err.message, errors: err.errors });
+    return;
+  }
+  if (err instanceof AuthenticationRequiredError) {
+    res.status(err.status).json({ error: err.message, code: "AUTHENTICATION_REQUIRED" });
     return;
   }
   if (err instanceof AppError) {

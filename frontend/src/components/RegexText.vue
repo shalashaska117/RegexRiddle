@@ -11,11 +11,21 @@ interface Token {
 }
 
 // Display-only scan; it approximates regex syntax and must never throw.
+/**
+ * Split a pattern into display tokens for syntax coloring.
+ * @param pattern - Raw regex text to scan; it does not need to compile.
+ * @returns Ordered text fragments tagged as anchors, classes, quantifiers or plain text.
+ */
 function tokenize(pattern: string): Token[] {
   const tokens: Token[] = [];
   let plain = "";
 
-  const flushPlain = () => {
+  const flushPlain = /**
+   * Save accumulated plain text before a colored token.
+   * Parameters: none.
+   * @returns Nothing; appends a plain-text token when needed and clears the buffer.
+   */
+  () => {
     if (plain) {
       tokens.push({ text: plain, kind: "txt" });
       plain = "";
@@ -78,7 +88,12 @@ function tokenize(pattern: string): Token[] {
   return tokens;
 }
 
-const tokens = computed<Token[]>(() => {
+const tokens = computed<Token[]>(/**
+ * Rebuild display tokens whenever the pattern changes.
+ * Parameters: none.
+ * @returns Colored tokens, or one plain-text token if tokenization fails.
+ */
+() => {
   try {
     return tokenize(props.pattern);
   } catch {
@@ -87,6 +102,7 @@ const tokens = computed<Token[]>(() => {
 });
 </script>
 
+<!-- Color display tokens without interpreting or executing the pattern. -->
 <template>
   <span class="regex-text"
     ><span class="tk-del">/</span

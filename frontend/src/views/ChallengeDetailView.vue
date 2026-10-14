@@ -30,17 +30,37 @@ const pending = ref(false);
 const lastResult = ref<AttemptResult | null>(null);
 
 const isAuthor = computed(
+  /**
+   * Check whether the signed-in player owns this riddle.
+   * Parameters: none.
+   * @returns True when both records are loaded and their account IDs match.
+   */
   () =>
     challenge.value !== null &&
     auth.user !== null &&
     challenge.value.author.id === auth.user.id,
 );
 
-const solvedIn = computed<number | null>(() => {
-  const index = attempts.value.findIndex((attempt) => attempt.solved);
+const solvedIn = computed<number | null>(/**
+ * Find how many displayed attempts were needed for the first solve.
+ * Parameters: none.
+ * @returns The first solving attempt's one-based number, or null if none is present.
+ */
+() => {
+  const index = attempts.value.findIndex(/**
+   * Identify a solved attempt while searching the history.
+   * @param attempt - History entry to inspect.
+   * @returns True when this attempt solved the riddle.
+   */
+  (attempt) => attempt.solved);
   return index === -1 ? null : index + 1;
 });
 
+/**
+ * Load the route's riddle and reset the previous detail state.
+ * Parameters: none.
+ * @returns Promise that resolves without a value after loading details or setting a not-found/error state.
+ */
 async function load(): Promise<void> {
   loading.value = true;
   notFound.value = false;
@@ -80,23 +100,39 @@ async function load(): Promise<void> {
 
 // params.id turns undefined while leaving the route; skip that final trigger.
 watch(
+  /**
+   * Observe the riddle ID used by the current route.
+   * Parameters: none.
+   * @returns The route ID value, or undefined while leaving the detail route.
+   */
   () => route.params.id,
+  /**
+   * Reload details when navigation selects another riddle.
+   * @param id - New route ID; undefined while the detail view is being left.
+   * @returns Nothing; starts loading when the route still has an ID.
+   */
   (id) => {
     if (id !== undefined) void load();
   },
   { immediate: true },
 );
 
+/**
+ * Score the current pattern and append feedback using the submitted text.
+ * Parameters: none.
+ * @returns Promise that resolves without a value after updating history, solved state or error feedback.
+ */
 async function onSubmit(): Promise<void> {
   if (!challenge.value || pending.value || pattern.value.length === 0) return;
+  const submittedPattern = pattern.value;
   patternError.value = "";
   submitError.value = "";
   pending.value = true;
   try {
-    const result = await submitAttempt(challenge.value.id, pattern.value);
+    const result = await submitAttempt(challenge.value.id, submittedPattern);
     lastResult.value = result;
     attempts.value.push({
-      proposedRegex: pattern.value,
+      proposedRegex: submittedPattern,
       positivesMatched: result.positivesMatched,
       negativesMatched: result.negativesMatched,
       solved: result.solved,
@@ -123,6 +159,11 @@ async function onSubmit(): Promise<void> {
 }
 
 // App copy is English, so dates render in the en locale regardless of browser locale.
+/**
+ * Format a riddle date in English.
+ * @param iso - ISO date-time string from the API.
+ * @returns English date text using the browser's time zone.
+ */
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en", {
     year: "numeric",
@@ -131,6 +172,11 @@ function formatDate(iso: string): string {
   });
 }
 
+/**
+ * Format an attempt timestamp in English.
+ * @param iso - ISO date-time string for an attempt.
+ * @returns English date and time text using the browser's time zone.
+ */
 function formatDateTime(iso: string): string {
   return new Date(iso).toLocaleString("en", {
     year: "numeric",

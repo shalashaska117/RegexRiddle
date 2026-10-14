@@ -30,6 +30,12 @@ await prisma.attempt.deleteMany({
   },
 });
 
+/**
+ * Creates a test account and opens its client session.
+ * @param client - HTTP client whose cookie jar will hold the session.
+ * @param username - Unique username for the test account.
+ * @returns A promise that resolves after both successful responses are checked.
+ */
 async function registerAndLogin(client: HttpClient, username: string): Promise<void> {
   const register = await client.post("/api/auth/register", { username, password });
   assert.equal(register.status, 201);
@@ -64,6 +70,11 @@ interface Row {
   avgAttempts: number;
 }
 
+/**
+ * Fetches the leaderboard through solver A and checks its response.
+ * Parameters: none.
+ * @returns A promise with the leaderboard rows in server order.
+ */
 async function fetchRows(): Promise<Row[]> {
   const res = await solverA.get("/api/leaderboard");
   assert.equal(res.status, 200);
@@ -72,6 +83,14 @@ async function fetchRows(): Promise<Row[]> {
   return rows;
 }
 
+/**
+ * Submits an attempt and checks its expected solve result.
+ * @param client - Authenticated client submitting the attempt.
+ * @param challengeId - Challenge to attempt.
+ * @param regex - Proposed solution pattern.
+ * @param solved - Expected solve result.
+ * @returns A promise that resolves after the response assertions pass.
+ */
 async function attempt(client: HttpClient, challengeId: number, regex: string, solved: boolean): Promise<void> {
   const res = await client.post(`/api/challenges/${challengeId}/attempts`, { regex });
   assert.equal(res.status, 201);
@@ -89,7 +108,14 @@ async function attempt(client: HttpClient, challengeId: number, regex: string, s
   await attempt(solverB, challengeIds[0]!, "a+", false);
   await attempt(solverB, challengeIds[0]!, "b+", false);
   const rows = await fetchRows();
-  assert.ok(!rows.some((r) => r.user.username === usernameB), "user with no solve is on the board");
+  assert.ok(!rows.some(
+    /**
+     * Identifies solver B in the leaderboard.
+     * @param r - Leaderboard row to inspect.
+     * @returns Whether the row belongs to solver B.
+     */
+    (r) => r.user.username === usernameB
+  ), "user with no solve is on the board");
 }
 
 // solver A solves all three on the first try: solvedCount 3, avgAttempts 1.
@@ -104,16 +130,24 @@ async function attempt(client: HttpClient, challengeId: number, regex: string, s
   await attempt(solverB, challengeIds[2]!, "[ab]+", true);
 }
 
+// Check response shape, global ordering and both solvers' averages.
 {
   const rows = await fetchRows();
   assert.ok(rows.length <= 50);
 
-  // every row has the documented shape and rank is the 1-based position
-  rows.forEach((row, index) => {
-    assert.deepEqual(Object.keys(row).sort(), ["avgAttempts", "rank", "solvedCount", "user"]);
-    assert.deepEqual(Object.keys(row.user).sort(), ["avatarUrl", "id", "username"]);
-    assert.equal(row.rank, index + 1);
-  });
+  rows.forEach(
+    /**
+     * Checks the public fields and position of a leaderboard row.
+     * @param row - Leaderboard entry to validate.
+     * @param index - Zero-based position of the entry.
+     * @returns Nothing; throws if a field or rank is wrong.
+     */
+    (row, index) => {
+      assert.deepEqual(Object.keys(row).sort(), ["avgAttempts", "rank", "solvedCount", "user"]);
+      assert.deepEqual(Object.keys(row.user).sort(), ["avatarUrl", "id", "username"]);
+      assert.equal(row.rank, index + 1);
+    }
+  );
 
   // the whole response respects the ordering rule, not just our two rows
   for (let i = 1; i < rows.length; i++) {
@@ -127,8 +161,22 @@ async function attempt(client: HttpClient, challengeId: number, regex: string, s
     assert.ok(ordered, `rows ${i - 1} and ${i} are out of order`);
   }
 
-  const indexA = rows.findIndex((r) => r.user.username === usernameA);
-  const indexB = rows.findIndex((r) => r.user.username === usernameB);
+  const indexA = rows.findIndex(
+    /**
+     * Locates solver A for the ranking assertions.
+     * @param r - Leaderboard row to inspect.
+     * @returns Whether the row belongs to solver A.
+     */
+    (r) => r.user.username === usernameA
+  );
+  const indexB = rows.findIndex(
+    /**
+     * Locates solver B for the ranking assertions.
+     * @param r - Leaderboard row to inspect.
+     * @returns Whether the row belongs to solver B.
+     */
+    (r) => r.user.username === usernameB
+  );
   assert.ok(indexA >= 0, "solver A is missing from the board");
   assert.ok(indexB >= 0, "solver B is missing from the board");
   // same solvedCount, so the lower average ranks first
@@ -144,5 +192,12 @@ async function attempt(client: HttpClient, challengeId: number, regex: string, s
   assert.equal(rowB.avgAttempts, 1.67);
 
   // the author never solved anything and must not appear
-  assert.ok(!rows.some((r) => r.user.username === usernameAuthor), "author is on the board without a solve");
+  assert.ok(!rows.some(
+    /**
+     * Identifies the author in the leaderboard.
+     * @param r - Leaderboard row to inspect.
+     * @returns Whether the row belongs to the challenge author.
+     */
+    (r) => r.user.username === usernameAuthor
+  ), "author is on the board without a solve");
 }

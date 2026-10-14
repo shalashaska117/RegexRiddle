@@ -3,6 +3,16 @@ import { createChallenge, registerUser, uniqueName } from "./helpers";
 
 const PASSWORD = "Secret-pass-1";
 
+/**
+ * Open the creation form and fill its public fields and secret regex.
+ * @param page - Browser page with the signed-in author.
+ * @param fields - Values to enter in the form.
+ * @param fields.title - Challenge name shown to players.
+ * @param fields.regex - Secret pattern to validate.
+ * @param fields.examplePositive - Public example that should match.
+ * @param fields.exampleNegative - Public example that should not match.
+ * @returns A promise with no value; control-string fields are left for the test.
+ */
 async function fillBaseFields(
   page: Page,
   fields: {
@@ -22,9 +32,19 @@ async function fillBaseFields(
 // The client-side validator only rejects empty and oversized fields, so the
 // values in the two failure tests reach the server and the inline errors
 // asserted below can only come from its 422 response.
+/**
+ * Submit the creation form and check that the API rejects it with 422.
+ * @param page - Browser page with the filled creation form.
+ * @returns A promise with no value; rejects if the response is not 422.
+ */
 async function submitExpecting422(page: Page): Promise<void> {
   const [response] = await Promise.all([
     page.waitForResponse(
+      /**
+       * Select the response to the challenge creation request.
+       * @param res - Browser response to inspect.
+       * @returns True for POST /api/challenges.
+       */
       (res) =>
         res.url().endsWith("/api/challenges") && res.request().method() === "POST",
     ),
@@ -33,6 +53,12 @@ async function submitExpecting422(page: Page): Promise<void> {
   expect(response.status()).toBe(422);
 }
 
+/**
+ * Check that a regex that does not compile shows an inline 422 error.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("a regex that does not compile shows an inline 422 error", async ({ page }) => {
   await registerUser(page, uniqueName("dotstar"), PASSWORD);
   await fillBaseFields(page, {
@@ -50,6 +76,12 @@ test("a regex that does not compile shows an inline 422 error", async ({ page })
   await expect(page).toHaveURL("/challenges/new");
 });
 
+/**
+ * Check that a control that does not match the secret regex errors on its own row.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("a control that does not match the secret regex errors on its own row", async ({
   page,
 }) => {
@@ -81,6 +113,12 @@ test("a control that does not match the secret regex errors on its own row", asy
   await expect(page).toHaveURL("/challenges/new");
 });
 
+/**
+ * Check that a valid creation lands on the detail page with examples and control counts.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("a valid creation lands on the detail page with examples and control counts", async ({
   page,
 }) => {

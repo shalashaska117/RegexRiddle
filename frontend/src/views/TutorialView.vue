@@ -10,12 +10,19 @@ const testerAnchor = ref<HTMLElement | null>(null);
 
 // Loading an example moves focus into the tester, which is above the
 // examples, so the page has to follow.
+/**
+ * Move to the tester and run a selected tutorial example.
+ * @param pattern - Example regex to copy into the tester.
+ * @param subject - Example string to check against that regex.
+ * @returns Promise that resolves without a value after the tester loads and checks the example, if mounted.
+ */
 async function onTry(pattern: string, subject: string): Promise<void> {
   testerAnchor.value?.scrollIntoView({ behavior: "smooth", block: "start" });
   await tester.value?.load(pattern, subject);
 }
 </script>
 
+<!-- Render the shared tutorial data and let examples populate the live tester. -->
 <template>
   <div class="tutorial">
     <h1>Learn regex</h1>

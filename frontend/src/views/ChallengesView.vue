@@ -12,6 +12,11 @@ const loading = ref(true);
 const error = ref("");
 
 // App copy is English, so dates render in the en locale regardless of browser locale.
+/**
+ * Format a challenge date in English.
+ * @param iso - ISO date-time string from the API.
+ * @returns English date text using the browser's time zone.
+ */
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en", {
     day: "numeric",
@@ -20,6 +25,11 @@ function formatDate(iso: string): string {
   });
 }
 
+/**
+ * Fetch the available challenges and the player's progress.
+ * Parameters: none.
+ * @returns Promise that resolves without a value after updating the list or its error state.
+ */
 async function load(): Promise<void> {
   loading.value = true;
   error.value = "";

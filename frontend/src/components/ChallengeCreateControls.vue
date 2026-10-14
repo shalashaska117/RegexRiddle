@@ -14,6 +14,12 @@ const emit = defineEmits<{
   remove: [index: number];
 }>();
 
+/**
+ * Pass an edited control string to the parent form.
+ * @param index - Zero-based index of the edited control.
+ * @param event - Input event containing the control's current text.
+ * @returns Nothing; emits the row index and new string through update.
+ */
 function onInput(index: number, event: Event): void {
   emit("update", index, (event.target as HTMLInputElement).value);
 }

@@ -15,7 +15,13 @@ challengesRouter.use(requireAuth);
 const attemptLimiter = rateLimit({
   windowMs: env.attemptRateLimitWindowMs,
   max: env.attemptRateLimitMax,
-  key: (req) => `${req.ip}:attempts`,
+  key:
+    /**
+     * Shares one attempt limit across all challenges for an IP address.
+     * @param req - Request whose IP address identifies the counter.
+     * @returns The counter key for this client's challenge attempts.
+     */
+    (req) => `${req.ip}:attempts`,
 });
 
 challengesRouter.post("/", challengeController.create);

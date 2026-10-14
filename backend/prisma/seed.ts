@@ -13,10 +13,20 @@ const PASSWORD = "Demo-password";
 const HOUR = 60 * 60 * 1000;
 const start = Date.now();
 
+/**
+ * Places a demo timestamp before the seed start.
+ * @param days - Number of days to subtract, including fractions.
+ * @returns The earlier date.
+ */
 function daysAgo(days: number): Date {
   return new Date(start - days * 24 * HOUR);
 }
 
+/**
+ * Stops the seed with a prefixed error.
+ * @param message - Reason the seed cannot continue.
+ * @returns Never returns; throws the seed error.
+ */
 function fail(message: string): never {
   throw new Error(`seed: ${message}`);
 }
@@ -29,11 +39,32 @@ interface Score {
 
 // Mirrors attemptService: positives count matches, negatives count
 // non-matches, solved needs both counts full.
+/**
+ * Scores a proposed pattern against the demo controls.
+ * @param pattern - Regex source to evaluate.
+ * @param positives - Control strings the pattern must match.
+ * @param negatives - Control strings the pattern must reject.
+ * @returns The positive and negative scores and whether every control passed.
+ */
 function score(pattern: string, positives: string[], negatives: string[]): Score {
   const matcher = createMatcher(pattern);
   if (!matcher.ok) fail(`pattern "${pattern}" rejected by the engine: ${matcher.error}`);
-  const positivesMatched = positives.filter((v) => matcher.test(v)).length;
-  const negativesMatched = negatives.filter((v) => !matcher.test(v)).length;
+  const positivesMatched = positives.filter(
+    /**
+     * Selects positive controls accepted by the pattern.
+     * @param v - Positive control string.
+     * @returns Whether the pattern matches the control.
+     */
+    (v) => matcher.test(v)
+  ).length;
+  const negativesMatched = negatives.filter(
+    /**
+     * Selects negative controls rejected by the pattern.
+     * @param v - Negative control string.
+     * @returns Whether the pattern rejects the control.
+     */
+    (v) => !matcher.test(v)
+  ).length;
   return {
     positivesMatched,
     negativesMatched,
@@ -266,6 +297,11 @@ const histories: HistorySpec[] = [
   },
 ];
 
+/**
+ * Checks that a demo challenge has consistent examples and controls.
+ * @param c - Demo challenge to validate.
+ * @returns Nothing; throws when the challenge is inconsistent.
+ */
 function validateChallenge(c: ChallengeSpec): void {
   const matcher = createMatcher(c.secretRegex);
   if (!matcher.ok) fail(`challenge ${c.key}: secret rejected: ${matcher.error}`);
@@ -286,6 +322,11 @@ function validateChallenge(c: ChallengeSpec): void {
   }
 }
 
+/**
+ * Replaces database contents with demo users, challenges and attempts.
+ * Parameters: none.
+ * @returns A promise that resolves after the seed is written and its totals are logged.
+ */
 async function main(): Promise<void> {
   await truncateAll(prisma);
 
@@ -314,8 +355,22 @@ async function main(): Promise<void> {
         createdAt: c.createdAt,
         controlStrings: {
           create: [
-            ...c.controlsPositive.map((value) => ({ value, kind: "POSITIVE" as const })),
-            ...c.controlsNegative.map((value) => ({ value, kind: "NEGATIVE" as const })),
+            ...c.controlsPositive.map(
+              /**
+               * Builds a positive control row for the demo challenge.
+               * @param value - String the secret pattern must match.
+               * @returns The control value and its positive kind.
+               */
+              (value) => ({ value, kind: "POSITIVE" as const })
+            ),
+            ...c.controlsNegative.map(
+              /**
+               * Builds a negative control row for the demo challenge.
+               * @param value - String the secret pattern must reject.
+               * @returns The control value and its negative kind.
+               */
+              (value) => ({ value, kind: "NEGATIVE" as const })
+            ),
           ],
         },
       },
@@ -369,8 +424,22 @@ async function main(): Promise<void> {
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exitCode = 1;
-  })
-  .finally(() => prisma.$disconnect());
+  .catch(
+    /**
+     * Reports a seed failure and marks the process unsuccessful.
+     * @param e - Error raised while seeding.
+     * @returns Nothing; logs the error and sets the exit code.
+     */
+    (e) => {
+      console.error(e);
+      process.exitCode = 1;
+    }
+  )
+  .finally(
+    /**
+     * Closes the seed database connection after completion or failure.
+     * Parameters: none.
+     * @returns A promise that resolves when Prisma disconnects.
+     */
+    () => prisma.$disconnect()
+  );

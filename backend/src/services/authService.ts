@@ -11,6 +11,12 @@ export interface PublicUser {
 // explicit select so passwordHash never reaches a controller
 const publicUserSelect = { id: true, username: true } as const;
 
+/**
+ * Creates an account with a hashed password.
+ * @param username - Unique username for the account.
+ * @param password - Plain-text password to hash before storage.
+ * @returns A promise for the new user ID and username.
+ */
 export async function register(username: string, password: string): Promise<PublicUser> {
   // argon2id by default, per docs/security.md
   const passwordHash = await argon2.hash(password);
@@ -28,6 +34,12 @@ export async function register(username: string, password: string): Promise<Publ
   }
 }
 
+/**
+ * Checks a username and password against the stored account.
+ * @param username - Username used to find the account.
+ * @param password - Plain-text password to verify.
+ * @returns A promise for the user ID and username; rejects invalid credentials.
+ */
 export async function verifyCredentials(username: string, password: string): Promise<PublicUser> {
   const user = await prisma.user.findUnique({
     where: { username },

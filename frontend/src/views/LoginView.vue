@@ -16,6 +16,11 @@ const banner = ref("");
 const fieldErrors = ref<Record<string, string>>({});
 
 // Only in-app paths; refuses absolute and protocol-relative URLs from the query.
+/**
+ * Choose a safe destination after login.
+ * Parameters: none.
+ * @returns The requested internal path, or /challenges when no valid path was supplied.
+ */
 function redirectTarget(): string {
   const redirect = route.query.redirect;
   if (
@@ -28,6 +33,11 @@ function redirectTarget(): string {
   return "/challenges";
 }
 
+/**
+ * Submit credentials and return to the requested page.
+ * Parameters: none.
+ * @returns Promise that resolves without a value after navigation or after displaying the login error.
+ */
 async function onSubmit(): Promise<void> {
   banner.value = "";
   fieldErrors.value = {};
@@ -37,7 +47,7 @@ async function onSubmit(): Promise<void> {
     await router.push(redirectTarget());
   } catch (err) {
     if (err instanceof ApiError) {
-      if (err.status === 401) {
+      if (err.status === 401 && err.code !== "AUTHENTICATION_REQUIRED") {
         banner.value = "Wrong username or password.";
       } else if (err.status === 429) {
         banner.value = "Too many tries, wait a minute.";

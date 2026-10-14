@@ -1,5 +1,6 @@
 import { defineConfig } from "@playwright/test";
 
+// Run browser tests against the local app, using one worker and a shared database.
 export default defineConfig({
   testDir: "./tests",
   // Tests share one database, so they cannot run in parallel.

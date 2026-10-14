@@ -2,6 +2,7 @@
 import RegexText from "../components/RegexText.vue";
 </script>
 
+<!-- Explain the public clues, hidden scoring controls and leaderboard rules. -->
 <template>
   <div class="how">
     <h1>How to play</h1>

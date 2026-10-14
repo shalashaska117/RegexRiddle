@@ -13,6 +13,12 @@ const anonymous = new HttpClient();
 const unique = crypto.randomUUID().replaceAll("-", "").slice(0, 20);
 const password = "A sufficiently long password!";
 
+/**
+ * Creates a test account and opens its client session.
+ * @param client - HTTP client whose cookie jar will hold the session.
+ * @param username - Unique username for the test account.
+ * @returns A promise that resolves after both successful responses are checked.
+ */
 async function registerAndLogin(client: HttpClient, username: string): Promise<void> {
   const register = await client.post("/api/auth/register", { username, password });
   assert.equal(register.status, 201);
@@ -147,8 +153,22 @@ const attemptsPath = `/api/challenges/${challengeId}/attempts`;
     createdAt: string;
   }>;
   assert.equal(list.length, 3);
-  assert.deepEqual(list.map((a) => a.proposedRegex), ["a+", "[abc]+", "(a|b)+"]);
-  assert.deepEqual(list.map((a) => a.solved), [false, false, true]);
+  assert.deepEqual(list.map(
+    /**
+     * Extracts the submitted pattern from a history entry.
+     * @param a - Recorded attempt from the response.
+     * @returns The regex source submitted for that attempt.
+     */
+    (a) => a.proposedRegex
+  ), ["a+", "[abc]+", "(a|b)+"]);
+  assert.deepEqual(list.map(
+    /**
+     * Extracts the solve result from a history entry.
+     * @param a - Recorded attempt from the response.
+     * @returns Whether that attempt solved the challenge.
+     */
+    (a) => a.solved
+  ), [false, false, true]);
   for (const attempt of list) {
     assert.deepEqual(Object.keys(attempt).sort(), [
       "createdAt",

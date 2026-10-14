@@ -54,3 +54,7 @@ docs/*.txt
 # the documentation build scripts stay local
 docs/latex/*.sh
 docs/latex/*.py
+
+# local launch helpers and command reminders
+/st*.sh
+/COMANDI*.txt

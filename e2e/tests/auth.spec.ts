@@ -3,17 +3,34 @@ import { paceAuth, registerUser, uniqueName } from "./helpers";
 
 const PASSWORD = "Anchor-tag-pw-1";
 
+/**
+ * Log out through the header and wait for the landing page.
+ * @param page - Browser page with the current session.
+ * @returns A promise with no value, resolved after navigation.
+ */
 async function logout(page: Page): Promise<void> {
   await page.getByRole("button", { name: "Log out" }).click();
   await page.waitForURL("/");
 }
 
+/**
+ * Find the signed-in user link in the main navigation.
+ * @param page - Browser page to search.
+ * @param username - Exact username shown in the header.
+ * @returns The profile-link locator used in assertions.
+ */
 function navUserLink(page: Page, username: string) {
   return page
     .getByRole("navigation", { name: "Main" })
     .getByRole("link", { name: username, exact: true });
 }
 
+/**
+ * Check that register lands on /challenges with the session open.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("register lands on /challenges with the session open", async ({ page }) => {
   const username = uniqueName("dotstar");
   await registerUser(page, username, PASSWORD);
@@ -27,6 +44,12 @@ test("register lands on /challenges with the session open", async ({ page }) => 
   await expect(page).toHaveURL("/challenges");
 });
 
+/**
+ * Check that registering a taken username shows the inline error.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("registering a taken username shows the inline error", async ({ page }) => {
   const username = uniqueName("backref_9");
   await registerUser(page, username, PASSWORD);
@@ -43,6 +66,12 @@ test("registering a taken username shows the inline error", async ({ page }) => 
   await expect(page).toHaveURL("/register");
 });
 
+/**
+ * Check that a password that misses a required character class is refused.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("a password that misses a required character class is refused", async ({
   page,
 }) => {
@@ -60,6 +89,12 @@ test("a password that misses a required character class is refused", async ({
   await expect(page).toHaveURL("/register");
 });
 
+/**
+ * Check that login with wrong credentials shows the banner.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("login with wrong credentials shows the banner", async ({ page }) => {
   const username = uniqueName("greedy_star");
   await registerUser(page, username, PASSWORD);
@@ -73,6 +108,12 @@ test("login with wrong credentials shows the banner", async ({ page }) => {
   await expect(page).toHaveURL("/login");
 });
 
+/**
+ * Check that the login password can be revealed and hidden again.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("the login password can be revealed and hidden again", async ({ page }) => {
   await page.goto("/login");
   const field = page.locator("#login-password");
@@ -85,6 +126,12 @@ test("the login password can be revealed and hidden again", async ({ page }) => 
   await expect(field).toHaveAttribute("type", "password");
 });
 
+/**
+ * Check that logged-out /challenges redirects to login and the redirect is honored.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("logged-out /challenges redirects to login and the redirect is honored", async ({
   page,
 }) => {
@@ -104,6 +151,12 @@ test("logged-out /challenges redirects to login and the redirect is honored", as
   await expect(navUserLink(page, username)).toBeVisible();
 });
 
+/**
+ * Check that a logged-in user visiting /login is bounced to /challenges.
+ * @param fixtures - Playwright fixtures for this test.
+ * @param fixtures.page - Isolated browser page used for the actions and checks.
+ * @returns A promise with no value; rejects if a check fails.
+ */
 test("a logged-in user visiting /login is bounced to /challenges", async ({ page }) => {
   const username = uniqueName("noncapture");
   await registerUser(page, username, PASSWORD);

@@ -57,6 +57,11 @@ let challengeId: number;
   challengeId = body.id;
 }
 
+/**
+ * Checks the validation response and extracts its field errors.
+ * @param res - API response expected to have status 422.
+ * @returns The error message for each invalid field.
+ */
 function errorsOf(res: { status: number; body: unknown }): Record<string, string> {
   assert.equal(res.status, 422, `expected 422, got ${res.status}: ${JSON.stringify(res.body)}`);
   const body = res.body as { error: string; errors: Record<string, string> };
@@ -121,7 +126,15 @@ function errorsOf(res: { status: number; body: unknown }): Record<string, string
 {
   const res = await client.post("/api/challenges", {
     ...validBody,
-    controlsPositive: Array.from({ length: 11 }, (_, i) => `rr_${unique}_90${i}`),
+    controlsPositive: Array.from({ length: 11 },
+      /**
+       * Builds distinct controls to exceed the allowed array length.
+       * @param _ - Unused value from the array-like input.
+       * @param i - Zero-based control position.
+       * @returns A positive control string unique to this position and test run.
+       */
+      (_, i) => `rr_${unique}_90${i}`
+    ),
   });
   const errors = errorsOf(res);
   assert.equal(typeof errors["controlsPositive"], "string");
@@ -147,7 +160,14 @@ function errorsOf(res: { status: number; body: unknown }): Record<string, string
     solvedCount: number;
   }>;
   assert.ok(Array.isArray(list));
-  const entry = list.find((c) => c.id === challengeId);
+  const entry = list.find(
+    /**
+     * Identifies the newly created challenge in the list.
+     * @param c - Challenge summary to inspect.
+     * @returns Whether the summary belongs to the test challenge.
+     */
+    (c) => c.id === challengeId
+  );
   assert.ok(entry, "created challenge missing from the list");
   assert.equal(entry.title, validBody.title);
   assert.deepEqual(entry.author, { id: userId, username });

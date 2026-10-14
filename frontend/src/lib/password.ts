@@ -13,6 +13,11 @@ export interface PasswordRule {
 
 // Special means anything that is not an ASCII letter or digit, the same rule
 // the server applies, so accented letters and spaces count.
+/**
+ * Check for a character outside ASCII letters and digits.
+ * @param value - Password text to inspect.
+ * @returns True when a special character is present, otherwise false.
+ */
 function hasSpecial(value: string): boolean {
   for (const ch of value) {
     const letter = (ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z");
@@ -22,6 +27,11 @@ function hasSpecial(value: string): boolean {
   return false;
 }
 
+/**
+ * Check for an ASCII lowercase letter.
+ * @param value - Password text to inspect.
+ * @returns True when a lowercase letter is present, otherwise false.
+ */
 function hasLowercase(value: string): boolean {
   for (const ch of value) {
     if (ch >= "a" && ch <= "z") return true;
@@ -29,6 +39,11 @@ function hasLowercase(value: string): boolean {
   return false;
 }
 
+/**
+ * Check for an ASCII uppercase letter.
+ * @param value - Password text to inspect.
+ * @returns True when an uppercase letter is present, otherwise false.
+ */
 function hasUppercase(value: string): boolean {
   for (const ch of value) {
     if (ch >= "A" && ch <= "Z") return true;
@@ -40,7 +55,12 @@ export const PASSWORD_RULES: PasswordRule[] = [
   {
     id: "length",
     label: `At least ${PASSWORD_MIN} characters`,
-    met: (value) => value.length >= PASSWORD_MIN,
+    met: /**
+     * Check the password's minimum length.
+     * @param value - Password text to measure.
+     * @returns True when the password reaches PASSWORD_MIN characters.
+     */
+    (value) => value.length >= PASSWORD_MIN,
   },
   { id: "lowercase", label: "A lowercase letter", met: hasLowercase },
   { id: "uppercase", label: "An uppercase letter", met: hasUppercase },
@@ -48,11 +68,21 @@ export const PASSWORD_RULES: PasswordRule[] = [
 ];
 
 // The message to show under the field, or null when the value is acceptable.
+/**
+ * Choose the validation message shown below a password field.
+ * @param value - Password text to validate.
+ * @returns An error message, or null when all password rules pass.
+ */
 export function passwordProblem(value: string): string | null {
   if (value.length > PASSWORD_MAX) {
     return `The password is longer than ${PASSWORD_MAX} characters.`;
   }
-  if (PASSWORD_RULES.every((rule) => rule.met(value))) {
+  if (PASSWORD_RULES.every(/**
+   * Apply one required rule to the supplied password.
+   * @param rule - Rule whose predicate is being checked.
+   * @returns True when this rule accepts the password.
+   */
+  (rule) => rule.met(value))) {
     return null;
   }
   return "The password does not meet every requirement listed below.";
