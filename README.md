@@ -150,6 +150,5 @@ demo afterwards, run `npx prisma db seed` from `backend/`.
 
 ## Project documentation
 
-- [Italian PDF](docs/documentation-it.pdf)
 - [English PDF](docs/documentation-en.pdf)
 - [LaTeX sources](docs/latex/)
